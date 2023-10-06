@@ -14,16 +14,7 @@ let
 
     flush = pkgs.writeShellScriptBin "flush" ''
         rm -rf node_modules
-    '';
-
-    ci-test = pkgs.writeShellScriptBin "ci-test" ''
-        flush
-        npm install --ignore-scripts
-        local-test
-    '';
-
-    docgen = pkgs.writeShellScriptBin "docgen" ''
-        npm run docgen
+        rm -rf dist
     '';
 
     lint = pkgs.writeShellScriptBin "lint" ''
@@ -32,6 +23,10 @@ let
 
     lint-fix = pkgs.writeShellScriptBin "lint-fix" ''
         npm run lint-fix
+    '';
+
+    build = pkgs.writeShellScriptBin "build" ''
+        npm run build
     '';
 
     in
@@ -43,11 +38,10 @@ let
             pkgs.nodejs-18_x
             pkgs.nodePackages.pnpm
             local-test
-            ci-test
             flush
-            docgen
             lint
             lint-fix
+            build
         ];
 
         shellHook = ''
