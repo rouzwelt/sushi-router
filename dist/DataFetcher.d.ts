@@ -1,0 +1,27 @@
+import { ChainId } from '@sushiswap/chain';
+import { Type } from '@sushiswap/currency';
+import { PrismaClient } from '@sushiswap/database';
+import { PublicClient } from 'viem';
+import { LiquidityProvider, LiquidityProviders } from './liquidity-providers/LiquidityProvider';
+import type { PoolCode } from './pools/PoolCode';
+export declare class DataFetcher {
+    chainId: ChainId;
+    providers: LiquidityProvider[];
+    poolCodes: Map<LiquidityProviders, Map<string, PoolCode>>;
+    stateId: number;
+    web3Client: PublicClient;
+    databaseClient: PrismaClient | undefined;
+    private static cache;
+    static onChain(chainId: ChainId): DataFetcher;
+    constructor(chainId: ChainId, web3Client?: PublicClient, databaseClient?: PrismaClient);
+    _providerIsIncluded(lp: LiquidityProviders, liquidity?: LiquidityProviders[]): boolean;
+    startDataFetching(providers?: LiquidityProviders[]): void;
+    stopDataFetching(): void;
+    fetchPoolsForToken(currency0: Type, currency1: Type, excludePools?: Set<string>, options?: {
+        blockNumber?: bigint;
+    }): Promise<void>;
+    getCurrentPoolCodeMap(currency0: Type, currency1: Type): Map<string, PoolCode>;
+    getCurrentPoolCodeList(currency0: Type, currency1: Type): PoolCode[];
+    getLastUpdateBlock(providers?: LiquidityProviders[]): number;
+}
+//# sourceMappingURL=DataFetcher.d.ts.map
