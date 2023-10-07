@@ -292,14 +292,14 @@ export class DataFetcher {
       }
     }
 
-    if (this._providerIsIncluded(LiquidityProviders.CurveSwap, providers)) {
-      try {
-        const provider = new CurveProvider(this.chainId, this.web3Client)
-        this.providers.push(provider)
-      } catch (e: unknown) {
-        // console.warn(e.message)
-      }
-    }
+    // if (this._providerIsIncluded(LiquidityProviders.CurveSwap, providers)) {
+    //   try {
+    //     const provider = new CurveProvider(this.chainId, this.web3Client)
+    //     this.providers.push(provider)
+    //   } catch (e: unknown) {
+    //     // console.warn(e.message)
+    //   }
+    // }
 
     if (this._providerIsIncluded(LiquidityProviders.DovishV3, providers)) {
       try {
@@ -325,6 +325,7 @@ export class DataFetcher {
     //     .join(', ')}`
     // )
     this.providers.forEach((p) => p.startFetchPoolsData())
+    this.providers.forEach((p) => p.stopFetchPoolsData())
   }
 
   // To stop fetch pool data
