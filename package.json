@@ -21,7 +21,6 @@
     "/dist"
   ],
   "scripts": {
-    "prepare": "npm run build",
     "build": "npm run pack && npm run typings",
     "typings": "tsc",
     "pack": "esbuild ./src/index.ts --bundle --outfile=./dist/index.js --format=cjs --platform=node --target=es2021",
