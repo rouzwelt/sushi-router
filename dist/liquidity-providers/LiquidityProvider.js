@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LiquidityProvider = exports.LiquidityProviders = void 0;
-var chain_1 = require("@sushiswap/chain");
+const chain_1 = require("@sushiswap/chain");
 var LiquidityProviders;
 (function (LiquidityProviders) {
     LiquidityProviders["SushiSwapV2"] = "SushiSwapV2";
@@ -28,14 +28,12 @@ var LiquidityProviders;
     LiquidityProviders["LaserSwap"] = "LaserSwap";
     LiquidityProviders["BaseSwap"] = "BaseSwap";
 })(LiquidityProviders || (exports.LiquidityProviders = LiquidityProviders = {}));
-var LiquidityProvider = /** @class */ (function () {
-    function LiquidityProvider(chainId, client) {
+class LiquidityProvider {
+    constructor(chainId, client) {
         this.lastUpdateBlock = 0;
         this.ON_DEMAND_POOLS_LIFETIME_IN_SECONDS = 60;
         this.FETCH_AVAILABLE_POOLS_AFTER_SECONDS = 900;
-        this.getTradeId = function (t0, t1) {
-            return [t0.address.toLowerCase(), t1.address.toLowerCase()].sort(function (first, second) { return (first > second ? -1 : 1); }).join(':');
-        };
+        this.getTradeId = (t0, t1) => [t0.address.toLowerCase(), t1.address.toLowerCase()].sort((first, second) => (first > second ? -1 : 1)).join(':');
         this.chainId = chainId;
         this.client = client;
     }
@@ -43,19 +41,18 @@ var LiquidityProvider = /** @class */ (function () {
      * Returns last processed block number
      * @returns last processed block number
      */
-    LiquidityProvider.prototype.getLastUpdateBlock = function () {
+    getLastUpdateBlock() {
         return this.lastUpdateBlock;
-    };
+    }
     /**
      * Logs a message with the following format:
      * <chainId>~<lastUpdateBlock>~<providerName>
      * Example: 1~123456~SushiSwap
      * @returns string
      */
-    LiquidityProvider.prototype.getLogPrefix = function () {
-        return "".concat(chain_1.chainShortName[this.chainId], "/").concat(this.chainId, "~").concat(this.lastUpdateBlock, "~").concat(this.getType());
-    };
-    return LiquidityProvider;
-}());
+    getLogPrefix() {
+        return `${chain_1.chainShortName[this.chainId]}/${this.chainId}~${this.lastUpdateBlock}~${this.getType()}`;
+    }
+}
 exports.LiquidityProvider = LiquidityProvider;
 //# sourceMappingURL=LiquidityProvider.js.map

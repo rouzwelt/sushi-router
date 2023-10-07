@@ -1,39 +1,19 @@
 "use strict";
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.tokenQuantityString = exports.Router = void 0;
-var chain_1 = require("@sushiswap/chain");
-var currency_1 = require("@sushiswap/currency");
-var tines_1 = require("@sushiswap/tines");
-var convert_1 = require("./lib/convert");
-var LiquidityProvider_1 = require("./liquidity-providers/LiquidityProvider");
-var Bridge_1 = require("./pools/Bridge");
-var TinesToRouteProcessor_1 = require("./TinesToRouteProcessor");
-var TinesToRouteProcessor2_1 = require("./TinesToRouteProcessor2");
-var TinesToRouteProcessor4_1 = require("./TinesToRouteProcessor4");
+const chain_1 = require("@sushiswap/chain");
+const currency_1 = require("@sushiswap/currency");
+const tines_1 = require("@sushiswap/tines");
+const convert_1 = require("./lib/convert");
+const LiquidityProvider_1 = require("./liquidity-providers/LiquidityProvider");
+const Bridge_1 = require("./pools/Bridge");
+const TinesToRouteProcessor_1 = require("./TinesToRouteProcessor");
+const TinesToRouteProcessor2_1 = require("./TinesToRouteProcessor2");
+const TinesToRouteProcessor4_1 = require("./TinesToRouteProcessor4");
 function TokenToRToken(t) {
     if (t instanceof currency_1.Token)
         return t;
-    var nativeRToken = {
+    const nativeRToken = {
         address: '',
         name: t.name,
         symbol: t.symbol,
@@ -42,67 +22,60 @@ function TokenToRToken(t) {
     };
     return nativeRToken;
 }
-var Router = /** @class */ (function () {
-    function Router() {
-    }
-    Router.findRouteType = function (poolCodesMap, addresses) {
-        if (addresses === null || addresses === void 0 ? void 0 : addresses.every(function (address) {
-            var _a;
-            var poolName = (_a = poolCodesMap.get(address)) === null || _a === void 0 ? void 0 : _a.poolName;
-            return ((poolName === null || poolName === void 0 ? void 0 : poolName.startsWith('Wrap')) ||
-                (poolName === null || poolName === void 0 ? void 0 : poolName.startsWith(LiquidityProvider_1.LiquidityProviders.SushiSwapV2)) ||
-                (poolName === null || poolName === void 0 ? void 0 : poolName.startsWith(LiquidityProvider_1.LiquidityProviders.SushiSwapV3)) ||
-                (poolName === null || poolName === void 0 ? void 0 : poolName.startsWith(LiquidityProvider_1.LiquidityProviders.Trident)) ||
-                (poolName === null || poolName === void 0 ? void 0 : poolName.startsWith(Bridge_1.Bridge.BentoBox)));
+class Router {
+    static findRouteType(poolCodesMap, addresses) {
+        if (addresses?.every((address) => {
+            const poolName = poolCodesMap.get(address)?.poolName;
+            return (poolName?.startsWith('Wrap') ||
+                poolName?.startsWith(LiquidityProvider_1.LiquidityProviders.SushiSwapV2) ||
+                poolName?.startsWith(LiquidityProvider_1.LiquidityProviders.SushiSwapV3) ||
+                poolName?.startsWith(LiquidityProvider_1.LiquidityProviders.Trident) ||
+                poolName?.startsWith(Bridge_1.Bridge.BentoBox));
         })) {
             return 'Internal';
         }
-        else if ((addresses === null || addresses === void 0 ? void 0 : addresses.some(function (address) {
-            var _a;
-            var poolName = (_a = poolCodesMap.get(address)) === null || _a === void 0 ? void 0 : _a.poolName;
-            return (!(poolName === null || poolName === void 0 ? void 0 : poolName.startsWith('Wrap')) &&
-                ((poolName === null || poolName === void 0 ? void 0 : poolName.startsWith(LiquidityProvider_1.LiquidityProviders.SushiSwapV2)) ||
-                    (poolName === null || poolName === void 0 ? void 0 : poolName.startsWith(LiquidityProvider_1.LiquidityProviders.SushiSwapV3)) ||
-                    (poolName === null || poolName === void 0 ? void 0 : poolName.startsWith(LiquidityProvider_1.LiquidityProviders.Trident)) ||
-                    (poolName === null || poolName === void 0 ? void 0 : poolName.startsWith(Bridge_1.Bridge.BentoBox))));
-        })) &&
-            (addresses === null || addresses === void 0 ? void 0 : addresses.some(function (address) {
-                var _a;
-                var poolName = (_a = poolCodesMap.get(address)) === null || _a === void 0 ? void 0 : _a.poolName;
-                return (!(poolName === null || poolName === void 0 ? void 0 : poolName.startsWith('Wrap')) &&
-                    (!(poolName === null || poolName === void 0 ? void 0 : poolName.startsWith(LiquidityProvider_1.LiquidityProviders.SushiSwapV2)) ||
-                        !(poolName === null || poolName === void 0 ? void 0 : poolName.startsWith(LiquidityProvider_1.LiquidityProviders.SushiSwapV3)) ||
-                        !(poolName === null || poolName === void 0 ? void 0 : poolName.startsWith(LiquidityProvider_1.LiquidityProviders.Trident)) ||
-                        !(poolName === null || poolName === void 0 ? void 0 : poolName.startsWith(Bridge_1.Bridge.BentoBox))));
-            }))) {
+        else if (addresses?.some((address) => {
+            const poolName = poolCodesMap.get(address)?.poolName;
+            return (!poolName?.startsWith('Wrap') &&
+                (poolName?.startsWith(LiquidityProvider_1.LiquidityProviders.SushiSwapV2) ||
+                    poolName?.startsWith(LiquidityProvider_1.LiquidityProviders.SushiSwapV3) ||
+                    poolName?.startsWith(LiquidityProvider_1.LiquidityProviders.Trident) ||
+                    poolName?.startsWith(Bridge_1.Bridge.BentoBox)));
+        }) &&
+            addresses?.some((address) => {
+                const poolName = poolCodesMap.get(address)?.poolName;
+                return (!poolName?.startsWith('Wrap') &&
+                    (!poolName?.startsWith(LiquidityProvider_1.LiquidityProviders.SushiSwapV2) ||
+                        !poolName?.startsWith(LiquidityProvider_1.LiquidityProviders.SushiSwapV3) ||
+                        !poolName?.startsWith(LiquidityProvider_1.LiquidityProviders.Trident) ||
+                        !poolName?.startsWith(Bridge_1.Bridge.BentoBox)));
+            })) {
             return 'Mix';
         }
-        else if (addresses === null || addresses === void 0 ? void 0 : addresses.some(function (address) {
-            var _a;
-            var poolName = (_a = poolCodesMap.get(address)) === null || _a === void 0 ? void 0 : _a.poolName;
-            return ((poolName === null || poolName === void 0 ? void 0 : poolName.startsWith('Wrap')) ||
-                (!(poolName === null || poolName === void 0 ? void 0 : poolName.startsWith(LiquidityProvider_1.LiquidityProviders.SushiSwapV2)) &&
-                    !(poolName === null || poolName === void 0 ? void 0 : poolName.startsWith(LiquidityProvider_1.LiquidityProviders.SushiSwapV3)) &&
-                    !(poolName === null || poolName === void 0 ? void 0 : poolName.startsWith(LiquidityProvider_1.LiquidityProviders.Trident)) &&
-                    !(poolName === null || poolName === void 0 ? void 0 : poolName.startsWith(Bridge_1.Bridge.BentoBox))));
+        else if (addresses?.some((address) => {
+            const poolName = poolCodesMap.get(address)?.poolName;
+            return (poolName?.startsWith('Wrap') ||
+                (!poolName?.startsWith(LiquidityProvider_1.LiquidityProviders.SushiSwapV2) &&
+                    !poolName?.startsWith(LiquidityProvider_1.LiquidityProviders.SushiSwapV3) &&
+                    !poolName?.startsWith(LiquidityProvider_1.LiquidityProviders.Trident) &&
+                    !poolName?.startsWith(Bridge_1.Bridge.BentoBox)));
         })) {
             return 'External';
         }
         return 'Unknown';
-    };
-    Router.findSushiRoute = function (poolCodesMap, chainId, fromToken, amountIn, toToken, gasPrice) {
+    }
+    static findSushiRoute(poolCodesMap, chainId, fromToken, amountIn, toToken, gasPrice) {
         return Router.findBestRoute(poolCodesMap, chainId, fromToken, amountIn, toToken, gasPrice, [
             LiquidityProvider_1.LiquidityProviders.NativeWrap,
             LiquidityProvider_1.LiquidityProviders.SushiSwapV2,
             LiquidityProvider_1.LiquidityProviders.SushiSwapV3,
             LiquidityProvider_1.LiquidityProviders.Trident,
         ]);
-    };
-    Router.findSpecialRoute = function (poolCodesMap, chainId, fromToken, amountIn, toToken, gasPrice, maxPriceImpact // 1%
+    }
+    static findSpecialRoute(poolCodesMap, chainId, fromToken, amountIn, toToken, gasPrice, maxPriceImpact = 1 // 1%
     ) {
-        if (maxPriceImpact === void 0) { maxPriceImpact = 1; }
         // Find preferrable route
-        var preferrableRoute = Router.findBestRoute(poolCodesMap, chainId, fromToken, amountIn, toToken, gasPrice, [
+        const preferrableRoute = Router.findBestRoute(poolCodesMap, chainId, fromToken, amountIn, toToken, gasPrice, [
             LiquidityProvider_1.LiquidityProviders.NativeWrap,
             LiquidityProvider_1.LiquidityProviders.SushiSwapV2,
             LiquidityProvider_1.LiquidityProviders.SushiSwapV3,
@@ -116,10 +89,10 @@ var Router = /** @class */ (function () {
         }
         // Otherwise, find the route using all possible liquidity providers
         return Router.findBestRoute(poolCodesMap, chainId, fromToken, amountIn, toToken, gasPrice);
-    };
-    Router.findBestRoute = function (poolCodesMap, chainId, fromToken, amountIn, toToken, gasPrice, providers, // all providers if undefined
+    }
+    static findBestRoute(poolCodesMap, chainId, fromToken, amountIn, toToken, gasPrice, providers, // all providers if undefined
     poolFilter) {
-        var networks = [
+        const networks = [
             {
                 chainId: chainId,
                 baseToken: currency_1.WNATIVE[chainId],
@@ -131,104 +104,94 @@ var Router = /** @class */ (function () {
                 gasPrice: gasPrice,
             },
         ];
-        var poolCodes = Array.from(poolCodesMap.values());
+        let poolCodes = Array.from(poolCodesMap.values());
         if (providers) {
-            poolCodes = poolCodes.filter(function (pc) { return __spreadArray(__spreadArray([], providers, true), [LiquidityProvider_1.LiquidityProviders.NativeWrap], false).includes(pc.liquidityProvider); });
+            poolCodes = poolCodes.filter((pc) => [...providers, LiquidityProvider_1.LiquidityProviders.NativeWrap].includes(pc.liquidityProvider));
         }
-        var pools = Array.from(poolCodes).map(function (pc) { return pc.pool; });
+        let pools = Array.from(poolCodes).map((pc) => pc.pool);
         if (poolFilter)
             pools = pools.filter(poolFilter);
-        var route = (0, tines_1.findMultiRouteExactIn)(TokenToRToken(fromToken), TokenToRToken(toToken), amountIn, pools, networks, gasPrice);
-        return __assign(__assign({}, route), { legs: route.legs.map(function (l) {
-                var _a, _b;
-                return (__assign(__assign({}, l), { poolName: (_b = (_a = poolCodesMap.get(l.poolAddress)) === null || _a === void 0 ? void 0 : _a.poolName) !== null && _b !== void 0 ? _b : 'Unknown Pool' }));
-            }) });
-    };
-    Router.routeProcessorParams = function (poolCodesMap, route, fromToken, toToken, to, RPAddr, maxPriceImpact) {
-        if (maxPriceImpact === void 0) { maxPriceImpact = 0.005; }
-        var tokenIn = fromToken instanceof currency_1.Token
+        const route = (0, tines_1.findMultiRouteExactIn)(TokenToRToken(fromToken), TokenToRToken(toToken), amountIn, pools, networks, gasPrice);
+        return {
+            ...route,
+            legs: route.legs.map((l) => ({
+                ...l,
+                poolName: poolCodesMap.get(l.poolAddress)?.poolName ?? 'Unknown Pool',
+            })),
+        };
+    }
+    static routeProcessorParams(poolCodesMap, route, fromToken, toToken, to, RPAddr, maxPriceImpact = 0.005) {
+        const tokenIn = fromToken instanceof currency_1.Token
             ? fromToken.address
             : fromToken.chainId === chain_1.ChainId.CELO
                 ? currency_1.WNATIVE_ADDRESS[chain_1.ChainId.CELO] /*CELO native coin has ERC20 interface*/
                 : '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
-        var tokenOut = toToken instanceof currency_1.Token ? toToken.address : '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
-        var amountOutMin = (route.amountOutBI * (0, tines_1.getBigInt)((1 - maxPriceImpact) * 1000000)) / 1000000n;
+        const tokenOut = toToken instanceof currency_1.Token ? toToken.address : '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+        const amountOutMin = (route.amountOutBI * (0, tines_1.getBigInt)((1 - maxPriceImpact) * 1000000)) / 1000000n;
         return {
-            tokenIn: tokenIn,
+            tokenIn,
             amountIn: route.amountInBI,
-            tokenOut: tokenOut,
-            amountOutMin: amountOutMin,
-            to: to,
+            tokenOut,
+            amountOutMin,
+            to,
             routeCode: (0, TinesToRouteProcessor_1.getRouteProcessorCode)(route, RPAddr, to, poolCodesMap),
             value: fromToken instanceof currency_1.Token ? undefined : route.amountInBI,
         };
-    };
-    Router.routeProcessor2Params = function (poolCodesMap, route, fromToken, toToken, to, RPAddr, permits, maxPriceImpact, source) {
-        if (permits === void 0) { permits = []; }
-        if (maxPriceImpact === void 0) { maxPriceImpact = 0.005; }
-        if (source === void 0) { source = TinesToRouteProcessor2_1.RouterLiquiditySource.Sender; }
-        var tokenIn = fromToken instanceof currency_1.Token ? fromToken.address : '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
-        var tokenOut = toToken instanceof currency_1.Token ? toToken.address : '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
-        var amountOutMin = (route.amountOutBI * (0, tines_1.getBigInt)((1 - maxPriceImpact) * 1000000)) / 1000000n;
+    }
+    static routeProcessor2Params(poolCodesMap, route, fromToken, toToken, to, RPAddr, permits = [], maxPriceImpact = 0.005, source = TinesToRouteProcessor2_1.RouterLiquiditySource.Sender) {
+        const tokenIn = fromToken instanceof currency_1.Token ? fromToken.address : '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+        const tokenOut = toToken instanceof currency_1.Token ? toToken.address : '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+        const amountOutMin = (route.amountOutBI * (0, tines_1.getBigInt)((1 - maxPriceImpact) * 1000000)) / 1000000n;
         return {
-            tokenIn: tokenIn,
+            tokenIn,
             amountIn: source === TinesToRouteProcessor2_1.RouterLiquiditySource.Sender ? route.amountInBI : 0n,
-            tokenOut: tokenOut,
-            amountOutMin: amountOutMin,
-            to: to,
+            tokenOut,
+            amountOutMin,
+            to,
             routeCode: (0, TinesToRouteProcessor2_1.getRouteProcessor2Code)(route, RPAddr, to, poolCodesMap, permits, source),
             value: fromToken instanceof currency_1.Token ? undefined : route.amountInBI,
         };
-    };
-    Router.routeProcessor3Params = function (poolCodesMap, route, fromToken, toToken, to, RPAddr, permits, maxPriceImpact, source) {
-        if (permits === void 0) { permits = []; }
-        if (maxPriceImpact === void 0) { maxPriceImpact = 0.005; }
-        if (source === void 0) { source = TinesToRouteProcessor2_1.RouterLiquiditySource.Sender; }
+    }
+    static routeProcessor3Params(poolCodesMap, route, fromToken, toToken, to, RPAddr, permits = [], maxPriceImpact = 0.005, source = TinesToRouteProcessor2_1.RouterLiquiditySource.Sender) {
         return Router.routeProcessor2Params(poolCodesMap, route, fromToken, toToken, to, RPAddr, permits, maxPriceImpact, source);
-    };
-    Router.routeProcessor4Params = function (poolCodesMap, route, fromToken, toToken, to, RPAddr, permits, maxPriceImpact) {
-        if (permits === void 0) { permits = []; }
-        if (maxPriceImpact === void 0) { maxPriceImpact = 0.005; }
-        var tokenIn = fromToken instanceof currency_1.Token ? fromToken.address : '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
-        var tokenOut = toToken instanceof currency_1.Token ? toToken.address : '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
-        var amountOutMin = (route.amountOutBI * (0, tines_1.getBigInt)((1 - maxPriceImpact) * 1000000)) / 1000000n;
+    }
+    static routeProcessor4Params(poolCodesMap, route, fromToken, toToken, to, RPAddr, permits = [], maxPriceImpact = 0.005) {
+        const tokenIn = fromToken instanceof currency_1.Token ? fromToken.address : '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+        const tokenOut = toToken instanceof currency_1.Token ? toToken.address : '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+        const amountOutMin = (route.amountOutBI * (0, tines_1.getBigInt)((1 - maxPriceImpact) * 1000000)) / 1000000n;
         return {
-            tokenIn: tokenIn,
+            tokenIn,
             amountIn: route.amountInBI,
-            tokenOut: tokenOut,
-            amountOutMin: amountOutMin,
-            to: to,
+            tokenOut,
+            amountOutMin,
+            to,
             routeCode: (0, TinesToRouteProcessor4_1.getRouteProcessor4Code)(route, RPAddr, to, poolCodesMap, permits),
             value: fromToken instanceof currency_1.Token ? undefined : route.amountInBI,
         };
-    };
+    }
     // Human-readable route printing
-    Router.routeToHumanString = function (poolCodesMap, route, fromToken, toToken, shiftPrimary, shiftSub) {
-        if (shiftPrimary === void 0) { shiftPrimary = ''; }
-        if (shiftSub === void 0) { shiftSub = '    '; }
-        var res = '';
-        res += "".concat(shiftPrimary, "Route Status: ").concat(route.status, "\n");
-        res += "".concat(shiftPrimary, "Input: ").concat(route.amountIn / Math.pow(10, fromToken.decimals), " ").concat(fromToken.symbol, "\n");
-        route.legs.forEach(function (l, i) {
-            var _a;
-            res += "".concat(shiftSub).concat(i + 1, ". ").concat(l.tokenFrom.symbol, " ").concat(Math.round(l.absolutePortion * 100), "% -> [").concat((_a = poolCodesMap.get(l.poolAddress)) === null || _a === void 0 ? void 0 : _a.poolName, "] -> ").concat(l.tokenTo.symbol, "\n");
+    static routeToHumanString(poolCodesMap, route, fromToken, toToken, shiftPrimary = '', shiftSub = '    ') {
+        let res = '';
+        res += `${shiftPrimary}Route Status: ${route.status}\n`;
+        res += `${shiftPrimary}Input: ${route.amountIn / 10 ** fromToken.decimals} ${fromToken.symbol}\n`;
+        route.legs.forEach((l, i) => {
+            res += `${shiftSub}${i + 1}. ${l.tokenFrom.symbol} ${Math.round(l.absolutePortion * 100)}% -> [${poolCodesMap.get(l.poolAddress)?.poolName}] -> ${l.tokenTo.symbol}\n`;
             //console.log(l.poolAddress, l.assumedAmountIn, l.assumedAmountOut)
         });
-        var output = parseInt(route.amountOutBI.toString()) / Math.pow(10, toToken.decimals);
-        res += "".concat(shiftPrimary, "Output: ").concat(output, " ").concat(route.toToken.symbol);
+        const output = parseInt(route.amountOutBI.toString()) / 10 ** toToken.decimals;
+        res += `${shiftPrimary}Output: ${output} ${route.toToken.symbol}`;
         return res;
-    };
-    return Router;
-}());
+    }
+}
 exports.Router = Router;
 function tokenQuantityString(token, amount) {
-    var denominator = Math.pow(10n, BigInt(token.decimals));
-    var integer = amount / denominator;
-    var fractional = amount - integer * denominator;
+    const denominator = 10n ** BigInt(token.decimals);
+    const integer = amount / denominator;
+    const fractional = amount - integer * denominator;
     if (fractional === 0n)
-        return "".concat(integer, " ").concat(token.symbol);
-    var paddedFractional = fractional.toString().padStart(token.decimals, '0');
-    return "".concat(integer, ".").concat(paddedFractional, " ").concat(token.symbol);
+        return `${integer} ${token.symbol}`;
+    const paddedFractional = fractional.toString().padStart(token.decimals, '0');
+    return `${integer}.${paddedFractional} ${token.symbol}`;
 }
 exports.tokenQuantityString = tokenQuantityString;
 //# sourceMappingURL=Router.js.map

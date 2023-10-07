@@ -1,6 +1,6 @@
 import { Fee } from '@sushiswap/base-sdk'
 import { amountSchema } from '@sushiswap/currency'
-import z from 'zod'
+import * as z from 'zod'
 
 export const tridentConstantPoolSchema = z.object({
   reserve0: amountSchema,

@@ -1,32 +1,15 @@
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BentoBridgePoolCode = void 0;
-var HEXer_1 = require("../HEXer");
-var Bridge_1 = require("./Bridge");
-var PoolCode_1 = require("./PoolCode");
-var BentoBridgePoolCode = /** @class */ (function (_super) {
-    __extends(BentoBridgePoolCode, _super);
-    function BentoBridgePoolCode(pool, liquidityProvider, _providerName, bentoBoxAddress) {
-        var _this = _super.call(this, pool, liquidityProvider, Bridge_1.Bridge.BentoBox) || this;
-        _this.bentoBoxAddress = bentoBoxAddress;
-        return _this;
+const HEXer_1 = require("../HEXer");
+const Bridge_1 = require("./Bridge");
+const PoolCode_1 = require("./PoolCode");
+class BentoBridgePoolCode extends PoolCode_1.PoolCode {
+    constructor(pool, liquidityProvider, _providerName, bentoBoxAddress) {
+        super(pool, liquidityProvider, Bridge_1.Bridge.BentoBox);
+        this.bentoBoxAddress = bentoBoxAddress;
     }
-    BentoBridgePoolCode.prototype.getStartPoint = function (leg) {
+    getStartPoint(leg) {
         if (leg.tokenFrom.chainId === this.pool.token0.chainId) {
             // bento deposit
             return this.bentoBoxAddress;
@@ -34,14 +17,14 @@ var BentoBridgePoolCode = /** @class */ (function (_super) {
         else {
             return 'RouteProcessor';
         }
-    };
-    BentoBridgePoolCode.prototype.getSwapCodeForRouteProcessor = function (leg, route, to, exactAmount) {
+    }
+    getSwapCodeForRouteProcessor(leg, route, to, exactAmount) {
         if (leg.tokenFrom.chainId === this.pool.token0.chainId) {
             // bento deposit
             if (leg.tokenFrom.tokenId === route.fromToken.tokenId) {
                 // input token with exactAmount
                 if (exactAmount !== undefined) {
-                    var code = new HEXer_1.HEXer()
+                    const code = new HEXer_1.HEXer()
                         .uint8(20) // bentoDepositAmountFromBento
                         .address(to)
                         .uint(exactAmount)
@@ -55,7 +38,7 @@ var BentoBridgePoolCode = /** @class */ (function (_super) {
             }
             else {
                 // deposit in the middle of a route
-                var code = new HEXer_1.HEXer()
+                const code = new HEXer_1.HEXer()
                     .uint8(26) // bentoDepositAllFromBento
                     .address(to)
                     .address(leg.tokenFrom.address)
@@ -69,7 +52,7 @@ var BentoBridgePoolCode = /** @class */ (function (_super) {
             if (leg.tokenFrom.tokenId === route.fromToken.tokenId) {
                 // input token with exactAmount
                 if (exactAmount !== undefined) {
-                    var code = new HEXer_1.HEXer()
+                    const code = new HEXer_1.HEXer()
                         .uint8(23) // bentoWithdrawShareFromRP
                         .address(to)
                         .uint(exactAmount)
@@ -83,7 +66,7 @@ var BentoBridgePoolCode = /** @class */ (function (_super) {
             }
             else {
                 // withdraw in the middle of a route
-                var code = new HEXer_1.HEXer()
+                const code = new HEXer_1.HEXer()
                     .uint8(27) // bentoWithdrawAllFromRP
                     .address(leg.tokenFrom.address)
                     .address(to)
@@ -92,16 +75,15 @@ var BentoBridgePoolCode = /** @class */ (function (_super) {
                 return code;
             }
         }
-    };
-    BentoBridgePoolCode.prototype.getSwapCodeForRouteProcessor2 = function (leg, _route, to) {
-        var code = new HEXer_1.HEXer()
+    }
+    getSwapCodeForRouteProcessor2(leg, _route, to) {
+        const code = new HEXer_1.HEXer()
             .uint8(3) // bentoBridge
             .uint8(leg.tokenFrom.chainId === this.pool.token0.chainId ? 1 : 0) // direction = deposit/withdraw
             .address(to)
             .toString();
         return code;
-    };
-    return BentoBridgePoolCode;
-}(PoolCode_1.PoolCode));
+    }
+}
 exports.BentoBridgePoolCode = BentoBridgePoolCode;
 //# sourceMappingURL=BentoBridge.js.map
