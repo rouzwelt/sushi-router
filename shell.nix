@@ -22,7 +22,7 @@ let
     '';
 
     lint-fix = pkgs.writeShellScriptBin "lint-fix" ''
-        npm run lint-fix
+        npm run lint:fix
     '';
 
     build = pkgs.writeShellScriptBin "build" ''

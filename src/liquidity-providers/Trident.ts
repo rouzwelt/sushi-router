@@ -4,12 +4,6 @@ import type { ChainId } from '@sushiswap/chain'
 import { Token } from '@sushiswap/currency'
 import { PrismaClient } from '@sushiswap/database'
 import { BridgeBento, ConstantProductRPool, Rebase, RToken, StableSwapRPool, toShareBI } from '@sushiswap/tines'
-import {
-  tridentConstantPoolFactoryAddress,
-  TridentConstantPoolFactoryChainId,
-  tridentStablePoolFactoryAddress,
-  TridentStablePoolFactoryChainId,
-} from '../trident-sdk'
 import { add, getUnixTime } from 'date-fns'
 import memoize from "memoize-fs"
 import { Address, PublicClient } from 'viem'
@@ -19,6 +13,12 @@ import { BentoBridgePoolCode } from '../pools/BentoBridge'
 import { BentoPoolCode } from '../pools/BentoPool'
 import type { PoolCode } from '../pools/PoolCode'
 import { TridentStaticPool, TridentStaticPoolFetcher } from '../static-pool-fetcher/Trident'
+import {
+  tridentConstantPoolFactoryAddress,
+  TridentConstantPoolFactoryChainId,
+  tridentStablePoolFactoryAddress,
+  TridentStablePoolFactoryChainId,
+} from '../trident-sdk'
 import { LiquidityProvider, LiquidityProviders } from './LiquidityProvider'
 
 

@@ -1,6 +1,10 @@
 import { tridentConstantPoolAbi, tridentStablePoolAbi } from '@sushiswap/abi'
 import { ChainId } from '@sushiswap/chain'
 import { Currency, Token } from '@sushiswap/currency'
+import memoize from "memoize-fs"
+import { Address, PublicClient } from 'viem'
+
+import { getCurrencyCombinations } from '../getCurrencyCombinations'
 import {
   tridentConstantPoolFactoryAbi,
   tridentConstantPoolFactoryAddress,
@@ -9,10 +13,6 @@ import {
   tridentStablePoolFactoryAddress,
   TridentStablePoolFactoryChainId,
 } from '../trident-sdk'
-import memoize from "memoize-fs"
-import { Address, PublicClient } from 'viem'
-
-import { getCurrencyCombinations } from '../getCurrencyCombinations'
 
 
 const memoizer = memoize({ cachePath: "./mem-cache" })

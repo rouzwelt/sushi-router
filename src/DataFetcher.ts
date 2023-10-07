@@ -2,7 +2,6 @@ import { isBentoBoxV1ChainId } from '@sushiswap/bentobox'
 import { ChainId } from '@sushiswap/chain'
 import { Type } from '@sushiswap/currency'
 import { PrismaClient } from '@sushiswap/database'
-import { isTridentConstantPoolFactoryChainId, isTridentStablePoolFactoryChainId } from './trident-sdk'
 import { config } from '@sushiswap/viem-config'
 import { createPublicClient, http, PublicClient } from 'viem'
 
@@ -29,6 +28,7 @@ import { UbeSwapProvider } from './liquidity-providers/UbeSwap'
 import { UniswapV2Provider } from './liquidity-providers/UniswapV2'
 import { UniswapV3Provider } from './liquidity-providers/UniswapV3'
 import type { PoolCode } from './pools/PoolCode'
+import { isTridentConstantPoolFactoryChainId, isTridentStablePoolFactoryChainId } from './trident-sdk'
 
 // import { create } from 'viem'
 const isTest = process.env.NODE_ENV === 'test' || process.env.NEXT_PUBLIC_TEST === 'true'
@@ -300,14 +300,17 @@ export class DataFetcher {
     if (currency0.wrapped.equals(currency1.wrapped)) {
       const provider = this.providers.find((p) => p.getType() === LiquidityProviders.NativeWrap)
       if (provider) {
-        await provider.fetchPoolsForToken(currency0.wrapped, currency1.wrapped, excludePools, options)
+        try {
+          await provider.fetchPoolsForToken(currency0.wrapped, currency1.wrapped, excludePools, options)
+        }
+        catch { /**/ }
       }
     } else {
       const [token0, token1] =
         currency0.wrapped.equals(currency1.wrapped) || currency0.wrapped.sortsBefore(currency1.wrapped)
           ? [currency0.wrapped, currency1.wrapped]
           : [currency1.wrapped, currency0.wrapped]
-      await Promise.all(this.providers.map((p) => p.fetchPoolsForToken(token0, token1, excludePools, options)))
+      await Promise.allSettled(this.providers.map((p) => p.fetchPoolsForToken(token0, token1, excludePools, options)))
     }
   }
 
