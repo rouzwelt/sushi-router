@@ -332,7 +332,7 @@ export class DataFetcher {
     this.providers.forEach((p) => p.stopFetchPoolsData())
   }
 
-  async fetchPoolsForToken(currency0: Type, currency1: Type, excludePools?: Set<string>, options?: {blockNumber?: bigint}): Promise<void> {
+  async fetchPoolsForToken(currency0: Type, currency1: Type, excludePools?: Set<string>, options?: {blockNumber?: bigint, memoize?: boolean}): Promise<void> {
     // ensure that we only fetch the native wrap pools if the token is the native currency and wrapped native currency
     if (currency0.wrapped.equals(currency1.wrapped)) {
       const provider = this.providers.find((p) => p.getType() === LiquidityProviders.NativeWrap)

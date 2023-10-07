@@ -96,6 +96,7 @@ export declare class TridentProvider extends LiquidityProvider {
     initPools(pools: PoolResponse2[]): Promise<void>;
     getOnDemandPools(t0: Token, t1: Token, excludePools?: Set<string>, options?: {
         blockNumber?: bigint;
+        memoize?: boolean;
     }): Promise<void>;
     startFetchPoolsData(): void;
     fetchPoolsForToken(t0: Token, t1: Token, excludePools?: Set<string>): Promise<void>;

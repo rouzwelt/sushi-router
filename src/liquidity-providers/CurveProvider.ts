@@ -458,7 +458,7 @@ export class CurveProvider extends LiquidityProvider {
    * @param t0 Token
    * @param t1 Token
    */
-  override async fetchPoolsForToken(t0: Token, t1: Token, excludePools?: Set<string>): Promise<void> {
+  override async fetchPoolsForToken(t0: Token, t1: Token, excludePools?: Set<string>, options?: {blockNumber?: bigint, memoize?: boolean}): Promise<void> {
     const pools = await this.getPoolsForTokens(t0, t1, excludePools)
     this.foundPools = await this.getCurvePoolCodes(pools)
     //console.log(JSON.stringify(this.foundPools, undefined, '   '))

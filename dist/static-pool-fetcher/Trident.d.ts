@@ -9,6 +9,9 @@ export interface TridentStaticPool {
     swapFee?: number;
 }
 export declare class TridentStaticPoolFetcher {
-    static getStaticPools(client: PublicClient, chainId: ChainId, t1: Token, t2: Token): Promise<[TridentStaticPool[], TridentStaticPool[]]>;
+    static getStaticPools(client: PublicClient, chainId: ChainId, t1: Token, t2: Token, options?: {
+        blockNumber?: bigint;
+        memoize?: boolean;
+    }): Promise<[TridentStaticPool[], TridentStaticPool[]]>;
     private static getPools;
 }

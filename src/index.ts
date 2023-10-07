@@ -17,3 +17,4 @@ export * from './TinesToRouteProcessor2'
 export * from "@sushiswap/currency";
 export { config } from "@sushiswap/viem-config";
 export { ChainId, ChainKey } from "@sushiswap/chain";
+export * from 'viem'

@@ -57,7 +57,7 @@ export abstract class LiquidityProvider {
    * @param t0 Token
    * @param t1 Token
    */
-  abstract fetchPoolsForToken(t0: Token, t1: Token, excludePools?: Set<string>, options?: {blockNumber?: bigint}): Promise<void>
+  abstract fetchPoolsForToken(t0: Token, t1: Token, excludePools?: Set<string>, options?: {blockNumber?: bigint, memoize?: boolean}): Promise<void>
 
   /**
    * Returns a list of PoolCode

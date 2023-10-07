@@ -18,6 +18,7 @@ export declare class DataFetcher {
     stopDataFetching(): void;
     fetchPoolsForToken(currency0: Type, currency1: Type, excludePools?: Set<string>, options?: {
         blockNumber?: bigint;
+        memoize?: boolean;
     }): Promise<void>;
     getCurrentPoolCodeMap(currency0: Type, currency1: Type): Map<string, PoolCode>;
     getCurrentPoolCodeList(currency0: Type, currency1: Type): PoolCode[];

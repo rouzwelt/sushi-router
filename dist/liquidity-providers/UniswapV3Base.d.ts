@@ -35,6 +35,7 @@ export declare abstract class UniswapV3BaseProvider extends LiquidityProvider {
     });
     fetchPoolsForToken(t0: Token, t1: Token, excludePools?: Set<string>, options?: {
         blockNumber?: bigint;
+        memoize?: boolean;
     }): Promise<void>;
     getStaticPools(t1: Token, t2: Token): StaticPool[];
     startFetchPoolsData(): void;

@@ -33,7 +33,10 @@ export declare class CurveProvider extends LiquidityProvider {
      * @param t0 Token
      * @param t1 Token
      */
-    fetchPoolsForToken(t0: Token, t1: Token, excludePools?: Set<string>): Promise<void>;
+    fetchPoolsForToken(t0: Token, t1: Token, excludePools?: Set<string>, options?: {
+        blockNumber?: bigint;
+        memoize?: boolean;
+    }): Promise<void>;
     /**
      * Returns a list of PoolCode
      * @returns PoolCode[]

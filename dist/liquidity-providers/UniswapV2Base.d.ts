@@ -44,6 +44,7 @@ export declare abstract class UniswapV2BaseProvider extends LiquidityProvider {
     });
     getOnDemandPools(t0: Token, t1: Token, excludePools?: Set<string>, options?: {
         blockNumber?: bigint;
+        memoize?: boolean;
     }): Promise<void>;
     _getPoolAddress(t1: Token, t2: Token): string;
     _getProspectiveTokens(t0: Token, t1: Token): Token[];

@@ -153,7 +153,7 @@ export abstract class UniswapV2BaseProvider extends LiquidityProvider {
   //   return new Map()
   // }
 
-  async getOnDemandPools(t0: Token, t1: Token, excludePools?: Set<string>, options?: {blockNumber?: bigint}): Promise<void> {
+  async getOnDemandPools(t0: Token, t1: Token, excludePools?: Set<string>, options?: {blockNumber?: bigint, memoize?: boolean}): Promise<void> {
     const topPoolAddresses = Array.from(this.topPools.keys())
     let pools =
       topPoolAddresses.length > 0
@@ -211,54 +211,56 @@ export abstract class UniswapV2BaseProvider extends LiquidityProvider {
         .catch(reason => callback(undefined, reason))
     }
     const multicallMemoize = await memoizer.fn(asyncMulticallWrapper);
-    const reserves = await multicallMemoize({
-      multicallAddress: this.client.chain?.contracts?.multicall3?.address as Address,
-      allowFailure: true,
-      blockNumber: options?.blockNumber,
-      contracts: poolCodesToCreate.map(
-        (poolCode) =>
-          ({
-            address: poolCode.pool.address as Address,
-            chainId: this.chainId,
-            abi: getReservesAbi,
-            functionName: 'getReserves',
-          } as const)
-        ),
-      }, 
-      (res, rej) => {
-        if (rej) {
-          console.warn(`${this.getLogPrefix()} - UPDATE: on-demand pools multicall failed, message: ${rej.message}`)
-          return undefined
+
+    const reserves = options?.memoize 
+      ? await multicallMemoize({
+        multicallAddress: this.client.chain?.contracts?.multicall3?.address as Address,
+        allowFailure: true,
+        blockNumber: options?.blockNumber,
+        contracts: poolCodesToCreate.map(
+          (poolCode) =>
+            ({
+              address: poolCode.pool.address as Address,
+              chainId: this.chainId,
+              abi: getReservesAbi,
+              functionName: 'getReserves',
+            } as const)
+          ),
+        }, 
+        (res, rej) => {
+          if (rej) {
+            console.warn(`${this.getLogPrefix()} - UPDATE: on-demand pools multicall failed, message: ${rej.message}`)
+            return undefined
+          }
+          else return res;
         }
-        else return res;
-      }
-    ) as any as ({
-        error: Error;
-        result?: undefined;
-        status: "failure";
-    } | {
-        error?: undefined;
-        result: unknown;
-        status: "success";
-    })[] | undefined;
-    // const reserves = await this.client
-    //   .multicall({
-    //     multicallAddress: this.client.chain?.contracts?.multicall3?.address as Address,
-    //     allowFailure: true,
-    //     contracts: poolCodesToCreate.map(
-    //       (poolCode) =>
-    //         ({
-    //           address: poolCode.pool.address as Address,
-    //           chainId: this.chainId,
-    //           abi: getReservesAbi,
-    //           functionName: 'getReserves',
-    //         } as const)
-    //     ),
-    //   })
-    //   .catch((e) => {
-    //     console.warn(`${this.getLogPrefix()} - UPDATE: on-demand pools multicall failed, message: ${e.message}`)
-    //     return undefined
-    //   })
+      ) as any as ({
+          error: Error;
+          result?: undefined;
+          status: "failure";
+      } | {
+          error?: undefined;
+          result: unknown;
+          status: "success";
+      })[] | undefined
+      : await this.client.multicall({
+        multicallAddress: this.client.chain?.contracts?.multicall3?.address as Address,
+        allowFailure: true,
+        blockNumber: options?.blockNumber,
+        contracts: poolCodesToCreate.map(
+          (poolCode) =>
+            ({
+              address: poolCode.pool.address as Address,
+              chainId: this.chainId,
+              abi: getReservesAbi,
+              functionName: 'getReserves',
+            } as const)
+        ),
+      })
+      .catch((e) => {
+        console.warn(`${this.getLogPrefix()} - UPDATE: on-demand pools multicall failed, message: ${e.message}`)
+        return undefined
+      })
 
     poolCodesToCreate.forEach((poolCode, i) => {
       const pool = poolCode.pool
