@@ -13,7 +13,6 @@ export class TridentCLPoolCode extends PoolCode {
     return PoolCode.RouteProcessorAddress
   }
 
-  // eslint-disable-next-line unused-imports/no-unused-vars, no-unused-vars, @typescript-eslint/no-unused-vars
   getSwapCodeForRouteProcessor(leg: RouteLeg, route: MultiRoute, to: string): string {
     return 'unsupported'
   }

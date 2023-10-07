@@ -1,24 +1,20 @@
-import { tridentConstantPoolAbi, tridentStablePoolAbi } from '@sushiswap/abi'
+import { constantProductPoolAbi, stablePoolAbi } from '@sushiswap/abi'
 import { ChainId } from '@sushiswap/chain'
 import { Currency, Token } from '@sushiswap/currency'
-import memoize from "memoize-fs"
+import {
+  constantProductPoolFactoryAbi,
+  constantProductPoolFactoryAddress,
+  ConstantProductPoolFactoryChainId,
+  stablePoolFactoryAbi,
+  stablePoolFactoryAddress,
+  StablePoolFactoryChainId,
+} from '@sushiswap/trident-core'
 import { Address, PublicClient } from 'viem'
 
 import { getCurrencyCombinations } from '../getCurrencyCombinations'
-import {
-  tridentConstantPoolFactoryAbi,
-  tridentConstantPoolFactoryAddress,
-  TridentConstantPoolFactoryChainId,
-  tridentStablePoolFactoryAbi,
-  tridentStablePoolFactoryAddress,
-  TridentStablePoolFactoryChainId,
-} from '../trident-sdk'
-
-
-const memoizer = memoize({ cachePath: "./mem-cache" })
 
 export interface TridentStaticPool {
-  address: Address
+  address: string
   token0: Token
   token1: Token
   type: 'STABLE_POOL' | 'CONSTANT_PRODUCT_POOL'
@@ -30,12 +26,11 @@ export class TridentStaticPoolFetcher {
     client: PublicClient,
     chainId: ChainId,
     t1: Token,
-    t2: Token,
-    options?: {blockNumber?: bigint}
+    t2: Token
   ): Promise<[TridentStaticPool[], TridentStaticPool[]]> {
     const pools = await Promise.all([
-      this.getPools(client, chainId, t1, t2, 'CONSTANT_PRODUCT_POOL', options),
-      this.getPools(client, chainId, t1, t2, 'STABLE_POOL', options),
+      this.getPools(client, chainId, t1, t2, 'CONSTANT_PRODUCT_POOL'),
+      this.getPools(client, chainId, t1, t2, 'STABLE_POOL'),
     ])
 
     return pools
@@ -46,8 +41,7 @@ export class TridentStaticPoolFetcher {
     chainId: ChainId,
     t1: Token,
     t2: Token,
-    type: 'STABLE_POOL' | 'CONSTANT_PRODUCT_POOL',
-    options?: {blockNumber?: bigint}
+    type: 'STABLE_POOL' | 'CONSTANT_PRODUCT_POOL'
   ) {
     const currencies = getCurrencyCombinations(chainId, t1, t2)
 
@@ -55,28 +49,16 @@ export class TridentStaticPoolFetcher {
     const _pairsUniqueAddr = _pairsUnique.map(([t0, t1]) => [t0.address, t1.address])
     const factoryAddress =
       type === 'STABLE_POOL'
-        ? (tridentStablePoolFactoryAddress[chainId as TridentStablePoolFactoryChainId] as Address)
-        : (tridentConstantPoolFactoryAddress[chainId as TridentConstantPoolFactoryChainId] as Address)
+        ? (stablePoolFactoryAddress[chainId as StablePoolFactoryChainId] as Address)
+        : (constantProductPoolFactoryAddress[chainId as ConstantProductPoolFactoryChainId] as Address)
     const factoryAbi =
       type === 'STABLE_POOL'
-        ? tridentStablePoolFactoryAbi[chainId as TridentStablePoolFactoryChainId]
-        : tridentConstantPoolFactoryAbi[chainId as TridentConstantPoolFactoryChainId]
+        ? stablePoolFactoryAbi[chainId as StablePoolFactoryChainId]
+        : constantProductPoolFactoryAbi[chainId as ConstantProductPoolFactoryChainId]
 
-
-    const asyncMulticallWrapper = async(
-      calldata: any, 
-      callback: (res?: any, rej?: any) => any
-    ) => {
-        client.multicall(calldata)
-        .then(v => callback(v, undefined))
-        .catch(reason => callback(undefined, reason))
-    }
-    const multicallMemoize = await memoizer.fn(asyncMulticallWrapper);
-
-    const callStatePoolsCount = await multicallMemoize({
+    const callStatePoolsCount = await client.multicall({
       multicallAddress: client.chain?.contracts?.multicall3?.address as Address,
       allowFailure: true,
-      blockNumber: options?.blockNumber,
       contracts: _pairsUniqueAddr.map(
         (el) =>
           ({
@@ -86,27 +68,8 @@ export class TridentStaticPoolFetcher {
             functionName: 'poolsCount',
             args: el as [Address, Address],
           } as const)
-        ),
-      },
-      (res, rej) => {
-        if (rej) return undefined
-        else return res
-      }
-    )
-    // const callStatePoolsCount = await client.multicall({
-    //   multicallAddress: client.chain?.contracts?.multicall3?.address as Address,
-    //   allowFailure: true,
-    //   contracts: _pairsUniqueAddr.map(
-    //     (el) =>
-    //       ({
-    //         chainId,
-    //         address: factoryAddress,
-    //         abi: factoryAbi,
-    //         functionName: 'poolsCount',
-    //         args: el as [Address, Address],
-    //       } as const)
-    //   ),
-    // })
+      ),
+    })
 
     const callStatePoolsCountProcessed = callStatePoolsCount
       ?.map((s, i) => [i, s?.result ? parseInt(s.result.toString()) : 0] as [number, number])
@@ -121,11 +84,9 @@ export class TridentStaticPoolFetcher {
       .filter(([, length]) => length)
       .map(([i]) => [_pairsUnique[i][0], _pairsUnique[i][1]])
 
-
-    const callStatePools = await multicallMemoize({
+    const callStatePools = await client.multicall({
       multicallAddress: client.chain?.contracts?.multicall3?.address as Address,
       allowFailure: true,
-      blockNumber: options?.blockNumber,
       contracts: callStatePoolsCountProcessed.map(
         (args) =>
           ({
@@ -135,34 +96,15 @@ export class TridentStaticPoolFetcher {
             functionName: 'getPools',
             args,
           } as const)
-        ),
-      },
-      (res, rej) => {
-        if (rej) return undefined
-        else return res
-      }
-    )
-    // const callStatePools = await client.multicall({
-    //   multicallAddress: client.chain?.contracts?.multicall3?.address as Address,
-    //   allowFailure: true,
-    //   contracts: callStatePoolsCountProcessed.map(
-    //     (args) =>
-    //       ({
-    //         chainId,
-    //         address: factoryAddress,
-    //         abi: factoryAbi,
-    //         functionName: 'getPools',
-    //         args,
-    //       } as const)
-    //   ),
-    // })
+      ),
+    })
 
     const pools: TridentStaticPool[] = []
     callStatePools.forEach((s, i) => {
       if (s?.result)
         s.result.forEach((address) =>
           pools.push({
-            address: address.toLowerCase() as Address,
+            address: address.toLowerCase(),
             token0: pairsUniqueProcessed?.[i][0] as Token,
             token1: pairsUniqueProcessed?.[i][1] as Token,
             type,
@@ -172,38 +114,19 @@ export class TridentStaticPoolFetcher {
 
     const poolsAddresses = pools.map((p) => p.address)
 
-    const fees = await multicallMemoize({
+    const fees = await client.multicall({
       multicallAddress: client.chain?.contracts?.multicall3?.address as Address,
       allowFailure: true,
-      blockNumber: options?.blockNumber,
       contracts: poolsAddresses.map(
         (address) =>
           ({
             chainId,
             address: address as Address,
-            abi: type === 'STABLE_POOL' ? tridentStablePoolAbi : tridentConstantPoolAbi,
+            abi: type === 'STABLE_POOL' ? stablePoolAbi : constantProductPoolAbi,
             functionName: 'swapFee',
           } as const)
-        ),
-      },
-      (res, rej) => {
-        if (rej) return undefined
-        else return res
-      }
-    )
-    // const fees = await client.multicall({
-    //   multicallAddress: client.chain?.contracts?.multicall3?.address as Address,
-    //   allowFailure: true,
-    //   contracts: poolsAddresses.map(
-    //     (address) =>
-    //       ({
-    //         chainId,
-    //         address: address as Address,
-    //         abi: type === 'STABLE_POOL' ? tridentStablePoolAbi : tridentConstantPoolAbi,
-    //         functionName: 'swapFee',
-    //       } as const)
-    //   ),
-    // })
+      ),
+    })
     const results: TridentStaticPool[] = []
 
     pools.forEach((p, i) => {

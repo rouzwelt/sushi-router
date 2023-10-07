@@ -18,20 +18,18 @@
   "source": "src/index.ts",
   "typings": "dist/index.d.ts",
   "files": [
-    "dist/**"
+    "/dist"
   ],
   "scripts": {
     "prepare": "npm run build",
-    "build": "tsc",
+    "build": "npm run pack && npm run typings",
+    "typings": "tsc",
+    "pack": "esbuild ./src/index.ts --bundle --outfile=./dist/index.js --format=cjs --platform=node --target=es2021",
     "check": "tsc --pretty --noEmit",
     "clean": "rm -rf node_modules && rm -rf dist",
     "dev": "tsc -w",
     "lint": "eslint src",
-    "lint:fix": "eslint src --fix",
-    "test": "jest --passWithNoTests"
-  },
-  "jest": {
-    "preset": "@sushiswap/jest-config/node"
+    "lint:fix": "eslint src --fix"
   },
   "dependencies": {
     "@ethersproject/abi": "=5.7.0",
@@ -63,13 +61,12 @@
   },
   "devDependencies": {
     "@sushiswap/database": "=0.0.1",
-    "@sushiswap/eslint-config": "=0.1.1",
-    "@sushiswap/jest-config": "=0.1.0",
-    "@sushiswap/prettier-config": "=0.1.1",
-    "@sushiswap/typescript-config": "=0.1.0",
     "@types/lodash.flatmap": "^4.5.7",
     "@types/node": "18",
     "@types/node-fetch": "2.6.2",
+    "@typescript-eslint/eslint-plugin": "^5.42.0",
+    "@typescript-eslint/parser": "^5.42.0",
+    "esbuild": "^0.19.4",
     "eslint": "8.43.0",
     "typescript": "5.1.6"
   },

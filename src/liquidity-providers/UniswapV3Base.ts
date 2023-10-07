@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { erc20Abi, tickLensAbi } from '@sushiswap/abi'
 import { ChainId } from '@sushiswap/chain'
 import { Currency, Token, Type } from '@sushiswap/currency'
-import { PrismaClient } from '@sushiswap/database'
+// import { PrismaClient } from '@sushiswap/database'
 import { RToken, UniV3Pool } from '@sushiswap/tines'
 import { computePoolAddress, FeeAmount, TICK_SPACINGS } from '@sushiswap/v3-sdk'
+import { BigNumber } from 'ethers'
 import memoize from "memoize-fs"
 import { Address, PublicClient } from 'viem'
 
@@ -42,8 +44,6 @@ const bitmapIndex = (tick: number, tickSpacing: number) => {
   return Math.floor(tick / tickSpacing / 256)
 }
 
-type PoolFilter = { has: (arg: string) => boolean }
-
 export abstract class UniswapV3BaseProvider extends LiquidityProvider {
   poolsByTrade: Map<string, string[]> = new Map()
   pools: Map<string, PoolCode> = new Map()
@@ -52,18 +52,18 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
   unwatchBlockNumber?: () => void
 
   isInitialized = false
-  factory: Record<number, Address> = {}
-  initCodeHash: Record<number, string> = {}
-  tickLens: Record<number, string> = {}
-  databaseClient: PrismaClient | undefined
+  factory: { [chainId: number]: Address } = {}
+  initCodeHash: { [chainId: number]: string } = {}
+  tickLens: { [chainId: number]: string } = {}
+  // databaseClient: PrismaClient | undefined
 
   constructor(
     chainId: ChainId,
     web3Client: PublicClient,
-    factory: Record<number, Address>,
-    initCodeHash: Record<number, string>,
-    tickLens: Record<number, string>,
-    databaseClient?: PrismaClient
+    factory: { [chainId: number]: Address },
+    initCodeHash: { [chainId: number]: string },
+    tickLens: { [chainId: number]: string },
+    // databaseClient?: PrismaClient
   ) {
     super(chainId, web3Client)
     this.factory = factory
@@ -72,10 +72,10 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
     if (!(chainId in this.factory) || !(chainId in this.initCodeHash) || !(chainId in tickLens)) {
       throw new Error(`${this.getType()} cannot be instantiated for chainid ${chainId}, no factory or initCodeHash`)
     }
-    this.databaseClient = databaseClient
+    // this.databaseClient = databaseClient
   }
 
-  async fetchPoolsForToken(t0: Token, t1: Token, excludePools?: Set<string> | PoolFilter, options?: {blockNumber?: bigint}): Promise<void> {
+  async fetchPoolsForToken(t0: Token, t1: Token, excludePools?: Set<string>, options?: {blockNumber?: bigint}): Promise<void> {
     let staticPools = this.getStaticPools(t0, t1)
     if (excludePools) staticPools = staticPools.filter((p) => !excludePools.has(p.address))
 
@@ -120,7 +120,7 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
       },
       (res, rej) => {
         if (rej) {
-          console.warn(`${this.getLogPrefix()} - INIT: multicall failed, message: ${e.message}`)
+          console.warn(`${this.getLogPrefix()} - INIT: multicall failed, message: ${rej.message}`)
           return undefined
         }
         else return res;
@@ -273,6 +273,7 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
         result: unknown;
         status: "success";
     })[]
+
     // const token0Contracts = this.client.multicall({
     //   multicallAddress: this.client.chain?.contracts?.multicall3?.address as Address,
     //   allowFailure: true,
@@ -287,6 +288,7 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
     //       } as const)
     //   ),
     // })
+
 
     const token1Contracts = multicallMemoize({
       multicallAddress: this.client.chain?.contracts?.multicall3?.address as Address,
@@ -316,6 +318,7 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
         result: unknown;
         status: "success";
     })[]
+
     // const token1Contracts = this.client.multicall({
     //   multicallAddress: this.client.chain?.contracts?.multicall3?.address as Address,
     //   allowFailure: true,
@@ -338,39 +341,40 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
       bitmapIndex(pool.activeTick + NUMBER_OF_SURROUNDING_TICKS, TICK_SPACINGS[pool.fee])
     )
 
-    const wordList = existingPools.flatMap((pool, i) => {
-      const minIndex = minIndexes[i]
-      const maxIndex = maxIndexes[i]
-
-      return Array.from({ length: maxIndex - minIndex + 1 }, (_, i) => minIndex + i).flatMap((j) => ({
-        chainId: this.chainId,
-        address: this.tickLens[this.chainId as keyof typeof this.tickLens] as Address,
-        args: [pool.address, j] as const,
-        abi: tickLensAbi,
-        functionName: 'getPopulatedTicksInWord' as const,
-        index: i,
-      }))
+    const wordList: any = []
+    existingPools.forEach((pool, i) => {
+      for (let j = minIndexes[i]; j <= maxIndexes[i]; ++j) {
+        wordList.push({
+          chainId: this.chainId,
+          address: this.tickLens[this.chainId as keyof typeof this.tickLens] as Address,
+          args: [pool.address, j],
+          abi: tickLensAbi,
+          functionName: 'getPopulatedTicksInWord',
+          index: i,
+        })
+      }
     })
 
     const ticksContracts = multicallMemoize({
-        multicallAddress: this.client.chain?.contracts?.multicall3?.address as Address,
-        allowFailure: true,
-        contracts: wordList,
-        blockNumber: options?.blockNumber
-      },
-      (res, rej) => {
-        if (rej) return undefined
-        return res
-      }
-    ) as any as ({
-        error: Error;
-        result?: undefined;
-        status: "failure";
-    } | {
-        error?: undefined;
-        result: unknown;
-        status: "success";
-    })[]
+      multicallAddress: this.client.chain?.contracts?.multicall3?.address as Address,
+      allowFailure: true,
+      contracts: wordList,
+      blockNumber: options?.blockNumber
+    },
+    (res, rej) => {
+      if (rej) return undefined
+      return res
+    }
+  ) as any as ({
+      error: Error;
+      result?: undefined;
+      status: "failure";
+  } | {
+      error?: undefined;
+      result: unknown;
+      status: "success";
+  })[]
+
     // const ticksContracts = this.client.multicall({
     //   multicallAddress: this.client.chain?.contracts?.multicall3?.address as Address,
     //   allowFailure: true,
@@ -384,10 +388,11 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
       ticksContracts,
     ])
 
-    const ticks: NonNullable<(typeof tickResults)[number]['result']>[] = []
+    const ticks: any = []
     tickResults.forEach((t, i) => {
       const index = wordList[i].index
-      ticks[index] = (ticks[index] || []).concat(t.result || [])
+      if (ticks[index] === undefined) ticks[index] = []
+      ticks[index] = ticks[index].concat(t.result || [])
     })
 
     const transformedV3Pools: PoolCode[] = []
@@ -399,11 +404,11 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
       if (balance0 === undefined || balance1 === undefined || liquidity === undefined) return
 
       const poolTicks = ticks[i]
-        .map((tick) => ({
+        .map((tick: any) => ({
           index: tick.tick,
-          DLiquidity: tick.liquidityNet,
+          DLiquidity: BigNumber.from(tick.liquidityNet),
         }))
-        .sort((a, b) => a.index - b.index)
+        .sort((a: any, b: any) => a.index - b.index)
 
       const lowerUnknownTick = minIndexes[i] * TICK_SPACINGS[pool.fee] * 256 - TICK_SPACINGS[pool.fee]
       console.assert(
@@ -412,13 +417,13 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
       )
       poolTicks.unshift({
         index: lowerUnknownTick,
-        DLiquidity: 0n,
+        DLiquidity: BigNumber.from(0),
       })
       const upperUnknownTick = (maxIndexes[i] + 1) * TICK_SPACINGS[pool.fee] * 256
       console.assert(poolTicks[poolTicks.length - 1].index < upperUnknownTick, 'Error 244: unexpected max tick index')
       poolTicks.push({
         index: upperUnknownTick,
-        DLiquidity: 0n,
+        DLiquidity: BigNumber.from(0),
       })
       //console.log(pool.fee, TICK_SPACINGS[pool.fee], pool.activeTick, minIndexes[i], maxIndexes[i], poolTicks)
 
@@ -427,11 +432,11 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
         pool.token0 as RToken,
         pool.token1 as RToken,
         pool.fee / 1_000_000,
-        balance0,
-        balance1,
+        BigNumber.from(balance0),
+        BigNumber.from(balance1),
         pool.activeTick,
-        liquidity,
-        pool.sqrtPriceX96,
+        BigNumber.from(liquidity),
+        BigNumber.from(pool.sqrtPriceX96),
         poolTicks
       )
 
@@ -489,19 +494,19 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
   startFetchPoolsData() {
     this.stopFetchPoolsData()
     // this.topPools = new Map()
-    this.unwatchBlockNumber = this.client.watchBlockNumber({
-      onBlockNumber: (blockNumber) => {
-        this.lastUpdateBlock = Number(blockNumber)
-        // if (!this.isInitialized) {
-        //   this.initialize()
-        // } else {
-        //   this.updatePools()
-        // }
-      },
-      onError: (error) => {
-        console.error(`${this.getLogPrefix()} - Error watching block number: ${error.message}`)
-      },
-    })
+    // this.unwatchBlockNumber = this.client.watchBlockNumber({
+    //   onBlockNumber: (blockNumber) => {
+    //     this.lastUpdateBlock = Number(blockNumber)
+    //     // if (!this.isInitialized) {
+    //     //   this.initialize()
+    //     // } else {
+    //     //   this.updatePools()
+    //     // }
+    //   },
+    //   onError: (error) => {
+    //     console.error(`${this.getLogPrefix()} - Error watching block number: ${error.message}`)
+    //   },
+    // })
   }
 
   getCurrentPoolList(): PoolCode[] {
