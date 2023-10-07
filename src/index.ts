@@ -14,3 +14,6 @@ export * from './pools/UniV3Pool'
 export * from './Router'
 export * from './Sankey.AnyChart'
 export * from './TinesToRouteProcessor2'
+export * from "@sushiswap/currency";
+export { config } from "@sushiswap/viem-config";
+export { ChainId, ChainKey } from "@sushiswap/chain";
