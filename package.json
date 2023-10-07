@@ -66,13 +66,5 @@
     "typescript": "5.1.6",
     "viem": "1.6.0",
     "zod": "3.21.4"
-  },
-  "peerDependencies": {
-    "@sushiswap/database": "*"
-  },
-  "peerDependenciesMeta": {
-    "@sushiswap/database": {
-      "optional": false
-    }
   }
 }
