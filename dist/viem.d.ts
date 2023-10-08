@@ -113,7 +113,7 @@ export type { Account, AccountSource, CustomSource, HDAccount, HDOptions, JsonRp
 export type { AssetGateway, AssetGatewayUrls } from 'viem';
 export type { Block, BlockIdentifier, BlockNumber, BlockTag, Uncle, } from 'viem';
 export type { ByteArray, Hash, Hex, LogTopic, Signature, SignableMessage, } from 'viem';
-export type { ChainContract, ChainFees, ChainFormatter, 
+export type { Chain, ChainContract, ChainFees, ChainFormatter, 
 /** @deprecated use `ChainFormatter` instead. */
 ChainFormatter as Formatter, ChainFormatters, 
 /** @deprecated use `ChainFormatters` instead. */
