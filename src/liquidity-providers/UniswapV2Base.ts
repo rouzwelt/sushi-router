@@ -9,7 +9,6 @@ import { ConstantProductRPool, RToken } from '@sushiswap/tines'
 import { add, getUnixTime } from 'date-fns'
 import { BigNumber } from 'ethers'
 import { getCreate2Address } from 'ethers/lib/utils'
-import memoize from "memoize-fs"
 import { Address, PublicClient } from 'viem'
 
 import { getCurrencyCombinations } from '../getCurrencyCombinations'
@@ -22,9 +21,7 @@ import {
 import { ConstantProductPoolCode } from '../pools/ConstantProductPool'
 import type { PoolCode } from '../pools/PoolCode'
 import { LiquidityProvider } from './LiquidityProvider'
-
-
-const memoizer = memoize({ cachePath: "./mem-cache" })
+import { memoizer } from '../memoizer'
 
 interface PoolInfo {
   poolCode: PoolCode
@@ -170,7 +167,8 @@ export abstract class UniswapV2BaseProvider extends LiquidityProvider {
       //console.info(`${this.getLogPrefix()} - No on demand pools found for ${t0.symbol}/${t1.symbol}`)
       return
     }
-
+    console.log("yo")
+    console.log(options);
     this.poolsByTrade.set(
       this.getTradeId(t0, t1),
       pools.map((pool) => pool.address)
@@ -202,15 +200,7 @@ export abstract class UniswapV2BaseProvider extends LiquidityProvider {
       }
     })
 
-    const asyncMulticallWrapper = async(
-      calldata: any, 
-      callback: (res?: any, rej?: any) => any
-    ) => {
-       this.client.multicall(calldata)
-        .then(v => callback(v, undefined))
-        .catch(reason => callback(undefined, reason))
-    }
-    const multicallMemoize = await memoizer.fn(asyncMulticallWrapper);
+    const multicallMemoize = await memoizer.fn(this.client.multicall);
 
     const reserves = options?.memoize 
       ? await multicallMemoize({
@@ -226,23 +216,8 @@ export abstract class UniswapV2BaseProvider extends LiquidityProvider {
               functionName: 'getReserves',
             } as const)
           ),
-        }, 
-        (res, rej) => {
-          if (rej) {
-            console.warn(`${this.getLogPrefix()} - UPDATE: on-demand pools multicall failed, message: ${rej.message}`)
-            return undefined
-          }
-          else return res;
         }
-      ) as any as ({
-          error: Error;
-          result?: undefined;
-          status: "failure";
-      } | {
-          error?: undefined;
-          result: unknown;
-          status: "success";
-      })[] | undefined
+      )
       : await this.client.multicall({
         multicallAddress: this.client.chain?.contracts?.multicall3?.address as Address,
         allowFailure: true,
@@ -262,7 +237,7 @@ export abstract class UniswapV2BaseProvider extends LiquidityProvider {
         return undefined
       })
 
-    poolCodesToCreate.forEach((poolCode, i) => {
+    poolCodesToCreate.forEach((poolCode, i) => {      
       const pool = poolCode.pool
       const res0 = reserves?.[i]?.result?.[0]
       const res1 = reserves?.[i]?.result?.[1]
@@ -544,8 +519,8 @@ export abstract class UniswapV2BaseProvider extends LiquidityProvider {
   //   }
   // }
 
-  async fetchPoolsForToken(t0: Token, t1: Token, excludePools?: Set<string>): Promise<void> {
-    await this.getOnDemandPools(t0, t1, excludePools)
+  async fetchPoolsForToken(t0: Token, t1: Token, excludePools?: Set<string>, options?: {blockNumber: bigint, memoize?: boolean}): Promise<void> {
+    await this.getOnDemandPools(t0, t1, excludePools, options)
   }
 
   /**

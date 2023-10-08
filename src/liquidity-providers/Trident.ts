@@ -13,7 +13,7 @@ import {
 } from '@sushiswap/trident-core'
 import { add, getUnixTime } from 'date-fns'
 import { BigNumber } from 'ethers'
-import memoize from "memoize-fs"
+import { memoizer } from '../memoizer'
 import { Address, PublicClient } from 'viem'
 
 import { 
@@ -27,8 +27,6 @@ import type { PoolCode } from '../pools/PoolCode'
 import { TridentStaticPool, TridentStaticPoolFetcher } from '../static-pool-fetcher/Trident'
 import { LiquidityProvider, LiquidityProviders } from './LiquidityProvider'
 
-
-const memoizer = memoize({ cachePath: "./mem-cache" })
 
 export function convertToNumbers(arr: BigNumber[]): (number | undefined)[] {
   return arr.map((a) => {
@@ -607,15 +605,7 @@ export class TridentProvider extends LiquidityProvider {
       }
     })
 
-    const asyncMulticallWrapper = async(
-      calldata: any, 
-      callback: (res?: any, rej?: any) => any
-    ) => {
-       this.client.multicall(calldata)
-        .then(v => callback(v, undefined))
-        .catch(reason => callback(undefined, reason))
-    }
-    const multicallMemoize = await memoizer.fn(asyncMulticallWrapper);
+    const multicallMemoize = await memoizer.fn(this.client.multicall);
 
     const classicReservePromise = options?.memoize
       ? multicallMemoize({
@@ -631,22 +621,8 @@ export class TridentProvider extends LiquidityProvider {
               functionName: 'getReserves',
             } as const)
         ),
-      },
-      (res, rej) => {
-        if (rej) {
-          console.warn(`${this.getLogPrefix()} - UPDATE: multicall failed, message: ${rej.message}`)
-          return undefined
-        }
-        else return res;
-      }) as any as ({
-          error: Error;
-          result?: undefined;
-          status: "failure";
-      } | {
-          error?: undefined;
-          result: readonly [bigint, bigint, number];
-          status: "success";
-      })[] | undefined
+      }
+    )
     : this.client.multicall({
         multicallAddress: this.client.chain?.contracts?.multicall3?.address as Address,
         allowFailure: true,
@@ -680,22 +656,8 @@ export class TridentProvider extends LiquidityProvider {
             functionName: 'getReserves',
           } as const)
       ),
-    },
-    (res, rej) => {
-      if (rej) {
-        console.warn(`${this.getLogPrefix()} - UPDATE: multicall failed, message: ${rej.message}`)
-        return undefined
-      }
-      else return res
-    }) as any as ({
-        error: Error;
-        result?: undefined;
-        status: "failure";
-    } | {
-        error?: undefined;
-        result: readonly [bigint, bigint];
-        status: "success";
-    })[] | undefined
+    }
+  )
   : this.client.multicall({
         multicallAddress: this.client.chain?.contracts?.multicall3?.address as Address,
         allowFailure: true,
@@ -731,22 +693,7 @@ export class TridentProvider extends LiquidityProvider {
               functionName: 'totals',
             } as const)
         ),
-      },
-      (res, rej) => {
-        if (rej) {
-          console.warn(`${this.getLogPrefix()} - UPDATE: multicall failed, message: ${rej.message}`)
-          return undefined
-        }
-        else return res
-      }) as any as ({
-          error: Error;
-          result?: undefined;
-          status: "failure";
-      } | {
-          error?: undefined;
-          result: readonly [bigint, bigint];
-          status: "success";
-      })[] | undefined
+      })
       : this.client.multicall({
         multicallAddress: this.client.chain?.contracts?.multicall3?.address as Address,
         allowFailure: true,
@@ -782,22 +729,8 @@ export class TridentProvider extends LiquidityProvider {
             functionName: 'balanceOf',
           } as const)
         ),
-      },
-      (res, rej) => {
-        if (rej) {
-          console.warn(`${this.getLogPrefix()} - UPDATE: multicall failed, message: ${rej.message}`)
-          return undefined
-        }
-        else return res
-      }) as any as ({
-          error: Error;
-          result?: undefined;
-          status: "failure";
-      } | {
-          error?: undefined;
-          result: bigint;
-          status: "success";
-      })[] | undefined
+      }
+    )
     : this.client.multicall({
         multicallAddress: this.client.chain?.contracts?.multicall3?.address as Address,
         allowFailure: true,

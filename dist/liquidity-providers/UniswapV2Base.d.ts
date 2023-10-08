@@ -50,7 +50,10 @@ export declare abstract class UniswapV2BaseProvider extends LiquidityProvider {
     _getProspectiveTokens(t0: Token, t1: Token): Token[];
     getStaticPools(t1: Token, t2: Token): StaticPool[];
     startFetchPoolsData(): void;
-    fetchPoolsForToken(t0: Token, t1: Token, excludePools?: Set<string>): Promise<void>;
+    fetchPoolsForToken(t0: Token, t1: Token, excludePools?: Set<string>, options?: {
+        blockNumber: bigint;
+        memoize?: boolean;
+    }): Promise<void>;
     /**
      * The pools returned are the initial pools, plus any on demand pools that have been fetched for the two tokens.
      * @param t0

@@ -6,7 +6,7 @@ import { Currency, Token, Type } from '@sushiswap/currency'
 import { RToken, UniV3Pool } from '@sushiswap/tines'
 import { computePoolAddress, FeeAmount, TICK_SPACINGS } from '@sushiswap/v3-sdk'
 import { BigNumber } from 'ethers'
-import memoize from "memoize-fs"
+import { memoizer } from '../memoizer'
 import { Address, PublicClient } from 'viem'
 
 import { getCurrencyCombinations } from '../getCurrencyCombinations'
@@ -14,8 +14,6 @@ import type { PoolCode } from '../pools/PoolCode'
 import { UniV3PoolCode } from '../pools/UniV3Pool'
 import { LiquidityProvider } from './LiquidityProvider'
 
-
-const memoizer = memoize({ cachePath: "./mem-cache" })
 
 interface StaticPool {
   address: Address
@@ -79,15 +77,15 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
     let staticPools = this.getStaticPools(t0, t1)
     if (excludePools) staticPools = staticPools.filter((p) => !excludePools.has(p.address))
 
-    const asyncMulticallWrapper = async(
-      calldata: any, 
-      callback: (res?: any, rej?: any) => any
-    ) => {
-       this.client.multicall(calldata)
-        .then(v => callback(v, undefined))
-        .catch(reason => callback(undefined, reason))
-    }
-    const multicallMemoize = await memoizer.fn(asyncMulticallWrapper);
+    // const asyncMulticallWrapper = async(
+    //   calldata: any, 
+    //   callback: (res?: any, rej?: any) => any
+    // ) => {
+    //    this.client.multicall(calldata)
+    //     .then(v => callback(v, undefined))
+    //     .catch(reason => callback(undefined, reason))
+    // }
+    const multicallMemoize = await memoizer.fn(this.client.multicall);
 
     const slot0 = options?.memoize
       ? await multicallMemoize({
@@ -119,23 +117,8 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
             functionName: 'slot0',
           } as const)
         ),
-      },
-      (res, rej) => {
-        if (rej) {
-          console.warn(`${this.getLogPrefix()} - INIT: multicall failed, message: ${rej.message}`)
-          return undefined
-        }
-        else return res;
       }
-    ) as any as ({
-        error: Error;
-        result?: undefined;
-        status: "failure";
-    } | {
-        error?: undefined;
-        result: readonly [bigint, number, number, number, number, number, boolean];
-        status: "success";
-    })[] | undefined
+    )
     : await this.client.multicall({
       multicallAddress: this.client.chain?.contracts?.multicall3?.address as Address,
       allowFailure: true,
@@ -189,7 +172,7 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
 
     if (existingPools.length === 0) return
 
-    const liquidityContracts = options?.memoize
+    const liquidityContracts: any = options?.memoize
       ? multicallMemoize({
       multicallAddress: this.client.chain?.contracts?.multicall3?.address as Address,
       allowFailure: true,
@@ -211,19 +194,7 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
             functionName: 'liquidity',
           } as const)
         ),
-      },
-      (res, rej) => {
-        if (rej) return undefined
-        return res
-      }) as any as ({
-          error: Error;
-          result?: undefined;
-          status: "failure";
-      } | {
-          error?: undefined;
-          result: bigint;
-          status: "success";
-      })[]
+      })
       : this.client.multicall({
         multicallAddress: this.client.chain?.contracts?.multicall3?.address as Address,
         allowFailure: true,
@@ -247,7 +218,7 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
         ),
       })
 
-    const token0Contracts = options?.memoize
+    const token0Contracts: any = options?.memoize
       ? multicallMemoize({
       multicallAddress: this.client.chain?.contracts?.multicall3?.address as Address,
       allowFailure: true,
@@ -262,19 +233,8 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
             functionName: 'balanceOf',
           } as const)
         ),
-      },
-      (res, rej) => {
-        if (rej) return undefined
-        return res
-      }) as any as ({
-          error: Error;
-          result?: undefined;
-          status: "failure";
-      } | {
-          error?: undefined;
-          result: unknown;
-          status: "success";
-      })[]
+      }
+    )
     : this.client.multicall({
       multicallAddress: this.client.chain?.contracts?.multicall3?.address as Address,
       allowFailure: true,
@@ -292,7 +252,7 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
     })
 
 
-    const token1Contracts = options?.memoize
+    const token1Contracts: any = options?.memoize
       ? multicallMemoize({
       multicallAddress: this.client.chain?.contracts?.multicall3?.address as Address,
       allowFailure: true,
@@ -307,19 +267,8 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
             functionName: 'balanceOf',
           } as const)
         ),
-      },
-      (res, rej) => {
-        if (rej) return undefined
-        return res
-      }) as any as ({
-          error: Error;
-          result?: undefined;
-          status: "failure";
-      } | {
-          error?: undefined;
-          result: unknown;
-          status: "success";
-      })[]
+      }
+    )
     : this.client.multicall({
       multicallAddress: this.client.chain?.contracts?.multicall3?.address as Address,
       allowFailure: true,
@@ -357,25 +306,13 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
       }
     })
 
-    const ticksContracts = options?.memoize
+    const ticksContracts: any = options?.memoize
       ? multicallMemoize({
       multicallAddress: this.client.chain?.contracts?.multicall3?.address as Address,
       allowFailure: true,
       blockNumber: options?.blockNumber,
       contracts: wordList
-    },
-    (res, rej) => {
-      if (rej) return undefined
-      return res
-    }) as any as ({
-        error: Error;
-        result?: undefined;
-        status: "failure";
-    } | {
-        error?: undefined;
-        result: unknown;
-        status: "success";
-    })[]
+    })
     : this.client.multicall({
       multicallAddress: this.client.chain?.contracts?.multicall3?.address as Address,
       allowFailure: true,
