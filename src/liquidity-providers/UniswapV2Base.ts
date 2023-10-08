@@ -167,8 +167,7 @@ export abstract class UniswapV2BaseProvider extends LiquidityProvider {
       //console.info(`${this.getLogPrefix()} - No on demand pools found for ${t0.symbol}/${t1.symbol}`)
       return
     }
-    console.log("yo")
-    console.log(options);
+
     this.poolsByTrade.set(
       this.getTradeId(t0, t1),
       pools.map((pool) => pool.address)
