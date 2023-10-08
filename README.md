@@ -1,7 +1,9 @@
 # SushiSwap Router Standalone
 
 This is standalone fork of sushiswap router lib v0.0.13 with option of block number and memoize for data fetching
-requires `viem` lib v1.6.0 as the JSON-RPC handler, although it is bundled its typings are not available, so if you need its typings to be available, install it as a dev dependency in your project.
+
+- All of the source code and dependencies of this library has been bundled into a single file, but only source code typings are available.
+- Requires `viem` lib v1.6.0 as the JSON-RPC handler which is bundled, but its typings are not available, so if you need its typings to be available, install it as a dev dependency in your project.
 
 insall:
 ```sh
@@ -37,7 +39,7 @@ const liquidityProviders = [
 ]
 dataFetcher.startDataFetching(liquidityProviders);
 
-// get pools and data for each to find the best route for desired tokens
+// get pools and data for a token pair
 const fromToken = new Token({
   chainId,
   decimals,
@@ -49,7 +51,9 @@ const toToken = new Token({
   address,
 });
 
-// use optional args memozie or block number for getting pool data at specific block height and memoize the result
+// use memozie or block number as optional args for getting pool 
+// data at specific block height and memoize the result, if omitted
+// the data will be at last block number and not memoized
 await dataFetcher.fetchPoolsForToken(fromToken, toToken, { blockNumber: 123n, memoize: true });
 
 // find the best route
@@ -62,9 +66,9 @@ const route = Router.findBestRoute(
   toToken,
   gasPrice.toNumber()
 );
-if (route.status == "NoWay") throw "unable to find route";
+if (route.status == "NoWay") throw "found no route for this token pair";
 
-// build price, be aware of each token decimals, should factore them in yourself
+// build price, be aware of each token decimals, should factor them yourself
 const price = route.amountOutBN / amountIn;
 console.log(price);
 
