@@ -574,7 +574,7 @@ export type {
   SignableMessage,
 } from 'viem'
 export type {
-  Chain,
+  // Chain,
   ChainContract,
   ChainFees,
   ChainFormatter,
