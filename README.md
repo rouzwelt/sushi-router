@@ -2,8 +2,8 @@
 
 This is standalone fork of sushiswap router lib v0.0.13 with option of block number and memoize for data fetching
 
-- All of the source code and dependencies of this library has been bundled into a single file, but only source code typings are available.
-- Requires `viem` lib v1.6.0 as the JSON-RPC handler which is bundled, but its typings are not available, so if you need its typings to be available, install it as a dev dependency in your project.
+- All of the source code and dependencies (except `viem`) of this library has been bundled into a single file, but only source code typings are available.
+- Requires `viem` lib v1.6.0 as the JSON-RPC handler which is bundled.
 
 insall:
 ```sh
@@ -13,7 +13,7 @@ npm install 'rouzwelt/sushiswap-router',
 # Tutorial
 ```typescript
 import { fallback, http, createPublicClient } from "viem";
-import { DataFetcher, Router, LiquidityProviders, Token, config } from "sushiswap-router";
+import { DataFetcher, Router, LiquidityProviders, Token, viemConfig } from "sushiswap-router";
 
 const transport = fallback(
   [
@@ -27,7 +27,7 @@ const transport = fallback(
 const dataFetcher = new DataFetcher(
   chainId,
   createPublicClient({
-    chain: config[chainId]?.chain,
+    chain: viemConfig[chainId]?.chain,
     transport
   })
 );
