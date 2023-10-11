@@ -1,9 +1,9 @@
-import { isBentoBoxV1ChainId } from '@sushiswap/bentobox'
-import { ChainId } from '@sushiswap/chain'
-import { Type } from '@sushiswap/currency'
+import { isBentoBoxChainId } from '@sushiswap/bentobox-sdk'
+import { ChainId } from 'sushi/chain'
+import { Type } from 'sushi/currency'
 // import { PrismaClient } from '@sushiswap/database'
-import { isConstantProductPoolFactoryChainId, isStablePoolFactoryChainId } from '@sushiswap/trident-core'
-import { viemConfig } from './viem-config'
+import { isTridentChainId } from '@sushiswap/trident-sdk'
+import { config } from './viem-config'
 import { createPublicClient, http, PublicClient } from 'viem'
 
 import { ApeSwapProvider } from './liquidity-providers/ApeSwap'
@@ -15,7 +15,10 @@ import { ElkProvider } from './liquidity-providers/Elk'
 import { HoneySwapProvider } from './liquidity-providers/HoneySwap'
 import { JetSwapProvider } from './liquidity-providers/JetSwap'
 import { LaserSwapV2Provider } from './liquidity-providers/LaserSwap'
-import { LiquidityProvider, LiquidityProviders } from './liquidity-providers/LiquidityProvider'
+import {
+  LiquidityProvider,
+  LiquidityProviders,
+} from './liquidity-providers/LiquidityProvider'
 import { NativeWrapProvider } from './liquidity-providers/NativeWrapProvider'
 import { NetSwapProvider } from './liquidity-providers/NetSwap'
 import { PancakeSwapProvider } from './liquidity-providers/PancakeSwap'
@@ -31,7 +34,10 @@ import { UniswapV3Provider } from './liquidity-providers/UniswapV3'
 import type { PoolCode } from './pools/PoolCode'
 
 // import { create } from 'viem'
-const isTest = process.env['NODE_ENV'] === 'test' || process.env['NEXT_PUBLIC_TEST'] === 'true'
+const isTest =
+  process.env.APP_ENV === 'test' ||
+  process.env.TEST === 'true' ||
+  process.env.NEXT_PUBLIC_TEST === 'true'
 
 // Gathers pools info, creates routing in 'incremental' mode
 // This means that new routing recalculates each time new pool fetching data comes
@@ -42,8 +48,7 @@ export class DataFetcher {
   poolCodes: Map<LiquidityProviders, Map<string, PoolCode>> = new Map()
   stateId = 0
   web3Client: PublicClient
-  databaseClient = undefined
-  // PrismaClient | undefined = undefined
+  // databaseClient: PrismaClient | undefined = undefined
 
   // TODO: maybe use an actual map
   // private static cache = new Map<number, DataFetcher>()
@@ -51,29 +56,38 @@ export class DataFetcher {
   private static cache: Record<number, DataFetcher> = {}
 
   static onChain(chainId: ChainId): DataFetcher {
-    if (chainId in this.cache) {
-      return this.cache[chainId]
+    const cache = this.cache[chainId]
+    if (cache) {
+      return cache
     }
 
-    this.cache[chainId] = new DataFetcher(chainId)
+    const dataFetcher = new DataFetcher(chainId)
 
-    return this.cache[chainId]
+    this.cache[chainId] = dataFetcher
+
+    return dataFetcher
   }
 
-  constructor(chainId: ChainId, web3Client?: PublicClient, 
-    // databaseClient?: PrismaClient
+  constructor(
+    chainId: ChainId,
+    publicClient?: PublicClient,
+    // databaseClient?: PrismaClient,
   ) {
     this.chainId = chainId
-    if (!web3Client && !viemConfig[chainId]) {
-      throw new Error(`No viem client or config for chainId ${chainId}`)
+    if (!publicClient && !config[chainId]) {
+      throw new Error(
+        `No public client given and no viem config found for chainId ${chainId}`,
+      )
     }
 
-    if (web3Client) {
-      this.web3Client = web3Client
+    if (publicClient) {
+      this.web3Client = publicClient
     } else {
       this.web3Client = createPublicClient({
-        ...viemConfig[chainId],
-        transport: isTest ? http('http://127.0.0.1:8545') : viemConfig[chainId].transport,
+        ...config[chainId],
+        transport: isTest
+          ? http('http://127.0.0.1:8545')
+          : config[chainId].transport,
         pollingInterval: 8_000,
         batch: {
           multicall: {
@@ -86,7 +100,10 @@ export class DataFetcher {
     // this.databaseClient = databaseClient
   }
 
-  _providerIsIncluded(lp: LiquidityProviders, liquidity?: LiquidityProviders[]) {
+  _providerIsIncluded(
+    lp: LiquidityProviders,
+    liquidity?: LiquidityProviders[],
+  ) {
     if (!liquidity) return true
     if (lp === LiquidityProviders.NativeWrap) return true
     return liquidity.some((l) => l === lp)
@@ -94,7 +111,7 @@ export class DataFetcher {
 
   // Starts pool data fetching
   startDataFetching(
-    providers?: LiquidityProviders[] // all providers if undefined
+    providers?: LiquidityProviders[], // all providers if undefined
   ) {
     this.stopDataFetching()
     this.poolCodes = new Map()
@@ -103,8 +120,10 @@ export class DataFetcher {
 
     if (this._providerIsIncluded(LiquidityProviders.SushiSwapV2, providers)) {
       try {
-        const provider = new SushiSwapV2Provider(this.chainId, this.web3Client, 
-          // this.databaseClient
+        const provider = new SushiSwapV2Provider(
+          this.chainId,
+          this.web3Client,
+          // this.databaseClient,
         )
         this.providers.push(provider)
       } catch (e: unknown) {
@@ -114,12 +133,14 @@ export class DataFetcher {
 
     if (
       this._providerIsIncluded(LiquidityProviders.Trident, providers) &&
-      isBentoBoxV1ChainId(this.chainId) &&
-      (isConstantProductPoolFactoryChainId(this.chainId) || isStablePoolFactoryChainId(this.chainId))
+      isBentoBoxChainId(this.chainId) &&
+      isTridentChainId(this.chainId)
     ) {
       try {
-        const provider = new TridentProvider(this.chainId, this.web3Client, 
-          // this.databaseClient
+        const provider = new TridentProvider(
+          this.chainId,
+          this.web3Client,
+          // this.databaseClient,
         )
         this.providers.push(provider)
       } catch (e: unknown) {
@@ -129,8 +150,10 @@ export class DataFetcher {
 
     if (this._providerIsIncluded(LiquidityProviders.SushiSwapV3, providers)) {
       try {
-        const provider = new SushiSwapV3Provider(this.chainId, this.web3Client, 
-          // this.databaseClient
+        const provider = new SushiSwapV3Provider(
+          this.chainId,
+          this.web3Client,
+          // this.databaseClient,
         )
         this.providers.push(provider)
       } catch (e: unknown) {
@@ -140,8 +163,10 @@ export class DataFetcher {
 
     if (this._providerIsIncluded(LiquidityProviders.UniswapV3, providers)) {
       try {
-        const provider = new UniswapV3Provider(this.chainId, this.web3Client, 
-          // this.databaseClient
+        const provider = new UniswapV3Provider(
+          this.chainId,
+          this.web3Client,
+          // this.databaseClient,
         )
         this.providers.push(provider)
       } catch (e: unknown) {
@@ -151,8 +176,10 @@ export class DataFetcher {
 
     if (this._providerIsIncluded(LiquidityProviders.ApeSwap, providers)) {
       try {
-        const provider = new ApeSwapProvider(this.chainId, this.web3Client, 
-          // this.databaseClient
+        const provider = new ApeSwapProvider(
+          this.chainId,
+          this.web3Client,
+          // this.databaseClient,
         )
         this.providers.push(provider)
       } catch (e: unknown) {
@@ -162,8 +189,10 @@ export class DataFetcher {
 
     if (this._providerIsIncluded(LiquidityProviders.Biswap, providers)) {
       try {
-        const provider = new BiswapProvider(this.chainId, this.web3Client, 
-          // this.databaseClient
+        const provider = new BiswapProvider(
+          this.chainId,
+          this.web3Client,
+          // this.databaseClient,
         )
         this.providers.push(provider)
       } catch (e: unknown) {
@@ -173,8 +202,10 @@ export class DataFetcher {
 
     if (this._providerIsIncluded(LiquidityProviders.Dfyn, providers)) {
       try {
-        const provider = new DfynProvider(this.chainId, this.web3Client, 
-          // this.databaseClient
+        const provider = new DfynProvider(
+          this.chainId,
+          this.web3Client,
+          // this.databaseClient,
         )
         this.providers.push(provider)
       } catch (e: unknown) {
@@ -184,8 +215,10 @@ export class DataFetcher {
 
     if (this._providerIsIncluded(LiquidityProviders.Elk, providers)) {
       try {
-        const provider = new ElkProvider(this.chainId, this.web3Client, 
-          // this.databaseClient
+        const provider = new ElkProvider(
+          this.chainId,
+          this.web3Client,
+          // this.databaseClient,
         )
         this.providers.push(provider)
       } catch (e: unknown) {
@@ -195,8 +228,10 @@ export class DataFetcher {
 
     if (this._providerIsIncluded(LiquidityProviders.HoneySwap, providers)) {
       try {
-        const provider = new HoneySwapProvider(this.chainId, this.web3Client, 
-          // this.databaseClient
+        const provider = new HoneySwapProvider(
+          this.chainId,
+          this.web3Client,
+          // this.databaseClient,
         )
         this.providers.push(provider)
       } catch (e: unknown) {
@@ -206,8 +241,10 @@ export class DataFetcher {
 
     if (this._providerIsIncluded(LiquidityProviders.JetSwap, providers)) {
       try {
-        const provider = new JetSwapProvider(this.chainId, this.web3Client, 
-          // this.databaseClient
+        const provider = new JetSwapProvider(
+          this.chainId,
+          this.web3Client,
+          // this.databaseClient,
         )
         this.providers.push(provider)
       } catch (e: unknown) {
@@ -217,8 +254,10 @@ export class DataFetcher {
 
     if (this._providerIsIncluded(LiquidityProviders.NetSwap, providers)) {
       try {
-        const provider = new NetSwapProvider(this.chainId, this.web3Client, 
-          // this.databaseClient
+        const provider = new NetSwapProvider(
+          this.chainId,
+          this.web3Client,
+          // this.databaseClient,
         )
         this.providers.push(provider)
       } catch (e: unknown) {
@@ -228,8 +267,10 @@ export class DataFetcher {
 
     if (this._providerIsIncluded(LiquidityProviders.PancakeSwap, providers)) {
       try {
-        const provider = new PancakeSwapProvider(this.chainId, this.web3Client, 
-          // this.databaseClient
+        const provider = new PancakeSwapProvider(
+          this.chainId,
+          this.web3Client,
+          // this.databaseClient,
         )
         this.providers.push(provider)
       } catch (e: unknown) {
@@ -239,8 +280,10 @@ export class DataFetcher {
 
     if (this._providerIsIncluded(LiquidityProviders.QuickSwap, providers)) {
       try {
-        const provider = new QuickSwapProvider(this.chainId, this.web3Client, 
-          // this.databaseClient
+        const provider = new QuickSwapProvider(
+          this.chainId,
+          this.web3Client,
+          // this.databaseClient,
         )
         this.providers.push(provider)
       } catch (e: unknown) {
@@ -250,8 +293,10 @@ export class DataFetcher {
 
     if (this._providerIsIncluded(LiquidityProviders.SpookySwap, providers)) {
       try {
-        const provider = new SpookySwapProvider(this.chainId, this.web3Client, 
-          // this.databaseClient
+        const provider = new SpookySwapProvider(
+          this.chainId,
+          this.web3Client,
+          // this.databaseClient,
         )
         this.providers.push(provider)
       } catch (e: unknown) {
@@ -261,8 +306,10 @@ export class DataFetcher {
 
     if (this._providerIsIncluded(LiquidityProviders.TraderJoe, providers)) {
       try {
-        const provider = new TraderJoeProvider(this.chainId, this.web3Client, 
-          // this.databaseClient
+        const provider = new TraderJoeProvider(
+          this.chainId,
+          this.web3Client,
+          // this.databaseClient,
         )
         this.providers.push(provider)
       } catch (e: unknown) {
@@ -272,8 +319,10 @@ export class DataFetcher {
 
     if (this._providerIsIncluded(LiquidityProviders.UbeSwap, providers)) {
       try {
-        const provider = new UbeSwapProvider(this.chainId, this.web3Client, 
-          // this.databaseClient
+        const provider = new UbeSwapProvider(
+          this.chainId,
+          this.web3Client,
+          // this.databaseClient,
         )
         this.providers.push(provider)
       } catch (e: unknown) {
@@ -283,8 +332,10 @@ export class DataFetcher {
 
     if (this._providerIsIncluded(LiquidityProviders.UniswapV2, providers)) {
       try {
-        const provider = new UniswapV2Provider(this.chainId, this.web3Client, 
-          // this.databaseClient
+        const provider = new UniswapV2Provider(
+          this.chainId,
+          this.web3Client,
+          // this.databaseClient,
         )
         this.providers.push(provider)
       } catch (e: unknown) {
@@ -292,14 +343,14 @@ export class DataFetcher {
       }
     }
 
-    // if (this._providerIsIncluded(LiquidityProviders.CurveSwap, providers)) {
-    //   try {
-    //     const provider = new CurveProvider(this.chainId, this.web3Client)
-    //     this.providers.push(provider)
-    //   } catch (e: unknown) {
-    //     // console.warn(e.message)
-    //   }
-    // }
+    if (this._providerIsIncluded(LiquidityProviders.CurveSwap, providers)) {
+      try {
+        const provider = new CurveProvider(this.chainId, this.web3Client)
+        this.providers.push(provider)
+      } catch (e: unknown) {
+        // console.warn(e.message)
+      }
+    }
 
     if (this._providerIsIncluded(LiquidityProviders.DovishV3, providers)) {
       try {
@@ -333,29 +384,52 @@ export class DataFetcher {
     this.providers.forEach((p) => p.stopFetchPoolsData())
   }
 
-  async fetchPoolsForToken(currency0: Type, currency1: Type, excludePools?: Set<string>, options?: {blockNumber?: bigint, memoize?: boolean}): Promise<void> {
+  async fetchPoolsForToken(
+    currency0: Type,
+    currency1: Type,
+    excludePools?: Set<string>,
+    options?: { blockNumber?: bigint, memoize?: boolean }
+  ): Promise<void> {
     // ensure that we only fetch the native wrap pools if the token is the native currency and wrapped native currency
     if (currency0.wrapped.equals(currency1.wrapped)) {
-      const provider = this.providers.find((p) => p.getType() === LiquidityProviders.NativeWrap)
+      const provider = this.providers.find(
+        (p) => p.getType() === LiquidityProviders.NativeWrap,
+      )
       if (provider) {
         try {
-          await provider.fetchPoolsForToken(currency0.wrapped, currency1.wrapped, excludePools, options)
+          await provider.fetchPoolsForToken(
+            currency0.wrapped,
+            currency1.wrapped,
+            excludePools,
+            options
+          )
         }
         catch { /**/ }
       }
     } else {
       const [token0, token1] =
-        currency0.wrapped.equals(currency1.wrapped) || currency0.wrapped.sortsBefore(currency1.wrapped)
+        currency0.wrapped.equals(currency1.wrapped) ||
+        currency0.wrapped.sortsBefore(currency1.wrapped)
           ? [currency0.wrapped, currency1.wrapped]
           : [currency1.wrapped, currency0.wrapped]
-      await Promise.allSettled(this.providers.map((p) => p.fetchPoolsForToken(token0, token1, excludePools, options)))
+      await Promise.allSettled(
+        this.providers.map((p) =>
+          p.fetchPoolsForToken(token0, token1, excludePools, options),
+        ),
+      )
     }
   }
 
-  getCurrentPoolCodeMap(currency0: Type, currency1: Type): Map<string, PoolCode> {
+  getCurrentPoolCodeMap(
+    currency0: Type,
+    currency1: Type,
+  ): Map<string, PoolCode> {
     const result: Map<string, PoolCode> = new Map()
     this.providers.forEach((p) => {
-      const poolCodes = p.getCurrentPoolList(currency0.wrapped, currency1.wrapped)
+      const poolCodes = p.getCurrentPoolList(
+        currency0.wrapped,
+        currency1.wrapped,
+      )
       poolCodes.forEach((pc) => result.set(pc.pool.address, pc))
     })
 
@@ -363,7 +437,10 @@ export class DataFetcher {
   }
 
   getCurrentPoolCodeList(currency0: Type, currency1: Type): PoolCode[] {
-    const pcMap = this.getCurrentPoolCodeMap(currency0.wrapped, currency1.wrapped)
+    const pcMap = this.getCurrentPoolCodeMap(
+      currency0.wrapped,
+      currency1.wrapped,
+    )
     return Array.from(pcMap.values())
   }
 

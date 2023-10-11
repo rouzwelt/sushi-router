@@ -1,4 +1,3 @@
-import type { BigNumber } from 'ethers';
 export declare class HEXer {
     private hex;
     constructor();
@@ -11,8 +10,8 @@ export declare class HEXer {
     uint24(data: number): HEXer;
     share16(share: number): HEXer;
     uint32(data: number): HEXer;
-    uint256(data: BigNumber | number): HEXer;
-    uint(data: BigNumber | number): HEXer;
+    uint256(data: bigint | number): HEXer;
+    uint(data: bigint | number): HEXer;
     address(addr: string): HEXer;
     hexData(data: string): HEXer;
     bytes(data: string): HEXer;

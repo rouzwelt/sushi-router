@@ -1,4 +1,4 @@
-import { ChainId } from '@sushiswap/chain';
+import { ChainId } from 'sushi/chain';
 import { PublicClient } from 'viem';
 import { LiquidityProviders } from './LiquidityProvider';
 import { UniswapV3BaseProvider } from './UniswapV3Base';

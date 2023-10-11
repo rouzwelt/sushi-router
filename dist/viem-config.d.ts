@@ -1,210 +1,39 @@
-import { PublicClientConfig } from 'viem';
-import { arbitrum, avalanche, bsc, celo, fantom, mainnet, optimism, polygon } from 'viem/chains';
-export { arbitrum, avalanche, bsc, celo, fantom, mainnet, optimism, polygon, };
-export declare const polygonZkEvm: {
-    contracts: {
-        multicall3: {
-            address: `0x${string}`;
-            blockCreated: number;
+import { type PublicClientConfig } from 'viem';
+import { arbitrum, arbitrumNova, avalanche, base, boba, bsc, celo, fantom, foundry, // missing multicall
+gnosis, goerli, hardhat, linea, localhost, mainnet, metis, moonbeam, moonriver, okc, optimism, polygon, polygonZkEvm, zkSync } from 'viem/chains';
+export { arbitrum, arbitrumNova, avalanche, base, boba, bsc, celo, fantom, foundry, gnosis, goerli, hardhat, linea, localhost, mainnet, metis, moonbeam, moonriver, okc, optimism, polygon, polygonZkEvm, zkSync, };
+export declare const fuse: {
+    readonly contracts: {
+        readonly multicall3: {
+            readonly address: `0x${string}`;
+            readonly blockCreated: 16146628;
         };
     };
-    id: 1101;
-    name: "Polygon zkEVM";
-    network: "polygon-zkevm";
-    nativeCurrency: {
-        readonly name: "Ether";
-        readonly symbol: "ETH";
-        readonly decimals: 18;
-    };
-    rpcUrls: {
-        readonly default: {
-            readonly http: readonly ["https://zkevm-rpc.com"];
-        };
-        readonly public: {
-            readonly http: readonly ["https://zkevm-rpc.com"];
-        };
-    };
-    blockExplorers: {
-        readonly default: {
-            readonly name: "PolygonScan";
-            readonly url: "https://zkevm.polygonscan.com";
-        };
-    };
-    formatters?: import("viem").ChainFormatters;
-    serializers?: import("viem").ChainSerializers<import("viem").ChainFormatters>;
-    fees?: import("viem").ChainFees<import("viem").ChainFormatters>;
-};
-export declare const gnosis: {
-    contracts: {
-        multicall3: {
-            address: `0x${string}`;
-            blockCreated: number;
-        };
-    };
-    id: 100;
-    name: "Gnosis";
-    network: "gnosis";
-    nativeCurrency: {
-        readonly decimals: 18;
-        readonly name: "Gnosis";
-        readonly symbol: "xDAI";
-    };
-    rpcUrls: {
-        readonly default: {
-            readonly http: readonly ["https://rpc.gnosischain.com"];
-        };
-        readonly public: {
-            readonly http: readonly ["https://rpc.gnosischain.com"];
-        };
-    };
-    blockExplorers: {
-        readonly etherscan: {
-            readonly name: "Gnosisscan";
-            readonly url: "https://gnosisscan.io";
-        };
-        readonly default: {
-            readonly name: "Gnosis Chain Explorer";
-            readonly url: "https://blockscout.com/xdai/mainnet";
-        };
-    };
-    formatters?: import("viem").ChainFormatters;
-    serializers?: import("viem").ChainSerializers<import("viem").ChainFormatters>;
-    fees?: import("viem").ChainFees<import("viem").ChainFormatters>;
-};
-export declare const metis: {
-    contracts: {
-        multicall3: {
-            address: `0x${string}`;
-            blockCreated: number;
-        };
-    };
-    id: 1088;
-    name: "Metis";
-    network: "andromeda";
-    nativeCurrency: {
-        readonly decimals: 18;
-        readonly name: "Metis";
-        readonly symbol: "METIS";
-    };
-    rpcUrls: {
-        readonly default: {
-            readonly http: readonly ["https://andromeda.metis.io/?owner=1088"];
-        };
-        readonly public: {
-            readonly http: readonly ["https://andromeda.metis.io/?owner=1088"];
-        };
-    };
-    blockExplorers: {
-        readonly default: {
-            readonly name: "Andromeda Explorer";
-            readonly url: "https://andromeda-explorer.metis.io";
-        };
-    };
-    formatters?: import("viem").ChainFormatters;
-    serializers?: import("viem").ChainSerializers<import("viem").ChainFormatters>;
-    fees?: import("viem").ChainFees<import("viem").ChainFormatters>;
-};
-export declare const harmony: {
-    readonly id: 1666600000;
-    readonly name: "Harmony";
-    readonly network: "harmony";
+    readonly id: 122;
+    readonly name: "Fuse";
+    readonly network: "fuse";
     readonly nativeCurrency: {
-        readonly name: "ONE";
-        readonly symbol: "ONE";
+        readonly name: "Fuse";
+        readonly symbol: "FUSE";
         readonly decimals: 18;
     };
     readonly rpcUrls: {
         readonly default: {
-            readonly http: readonly ["https://api.harmony.one"];
+            readonly http: readonly ["https://rpc.fuse.io"];
         };
         readonly public: {
-            readonly http: readonly ["https://api.harmony.one"];
+            readonly http: readonly ["https://rpc.fuse.io"];
         };
     };
     readonly blockExplorers: {
-        readonly etherscan: {
-            readonly name: "Harmony Blockchain Explorer";
-            readonly url: "https://explorer.harmony.one";
-        };
         readonly default: {
-            readonly name: "Harmony Blockchain Explorer";
-            readonly url: "https://explorer.harmony.one";
+            readonly name: "Fuse Explorer";
+            readonly url: "https://explorer.fuse.io";
         };
     };
-    readonly contracts: {
-        readonly multicall3: {
-            readonly address: `0x${string}`;
-            readonly blockCreated: 24185753;
-        };
-    };
-};
-export declare const moonbeam: {
-    readonly id: 1284;
-    readonly name: "Moonbeam";
-    readonly network: "moonbeam";
-    readonly nativeCurrency: {
-        readonly name: "Glimmer";
-        readonly symbol: "GLMR";
-        readonly decimals: 18;
-    };
-    readonly rpcUrls: {
-        readonly default: {
-            readonly http: readonly ["https://rpc.api.moonbeam.network"];
-        };
-        readonly public: {
-            readonly http: readonly ["https://rpc.api.moonbeam.network"];
-        };
-    };
-    readonly blockExplorers: {
-        readonly etherscan: {
-            readonly name: "Moonscan";
-            readonly url: "https://moonbeam.moonscan.io";
-        };
-        readonly default: {
-            readonly name: "Moonscan";
-            readonly url: "https://moonbeam.moonscan.io";
-        };
-    };
-    readonly contracts: {
-        readonly multicall3: {
-            readonly address: `0x${string}`;
-            readonly blockCreated: 609002;
-        };
-    };
-};
-export declare const moonriver: {
-    readonly id: 1285;
-    readonly name: "Moonriver";
-    readonly network: "moonriver";
-    readonly nativeCurrency: {
-        readonly name: "Moonriver";
-        readonly symbol: "MOVR";
-        readonly decimals: 18;
-    };
-    readonly rpcUrls: {
-        readonly default: {
-            readonly http: readonly ["https://rpc.api.moonriver.moonbeam.network"];
-        };
-        readonly public: {
-            readonly http: readonly ["https://rpc.api.moonriver.moonbeam.network"];
-        };
-    };
-    readonly blockExplorers: {
-        readonly etherscan: {
-            readonly name: "Moonscan";
-            readonly url: "https://moonriver.moonscan.io";
-        };
-        readonly default: {
-            readonly name: "Moonscan";
-            readonly url: "https://moonriver.moonscan.io";
-        };
-    };
-    readonly contracts: {
-        readonly multicall3: {
-            readonly address: `0x${string}`;
-            readonly blockCreated: 1597904;
-        };
-    };
+    readonly formatters?: import("viem").ChainFormatters;
+    readonly serializers?: import("viem").ChainSerializers<import("viem").ChainFormatters>;
+    readonly fees?: import("viem").ChainFees<import("viem").ChainFormatters>;
 };
 export declare const kava: {
     readonly id: 2222;
@@ -237,108 +66,6 @@ export declare const kava: {
         readonly multicall3: {
             readonly address: `0x${string}`;
             readonly blockCreated: 1176602;
-        };
-    };
-};
-export declare const fuse: {
-    readonly id: 122;
-    readonly name: "Fuse";
-    readonly network: "fuse";
-    readonly nativeCurrency: {
-        readonly name: "Fuse";
-        readonly symbol: "FUSE";
-        readonly decimals: 18;
-    };
-    readonly rpcUrls: {
-        readonly default: {
-            readonly http: readonly ["https://rpc.fuse.io"];
-        };
-        readonly public: {
-            readonly http: readonly ["https://rpc.fuse.io"];
-        };
-    };
-    readonly blockExplorers: {
-        readonly etherscan: {
-            readonly name: "Fusescan";
-            readonly url: "https://explorer.fuse.io/";
-        };
-        readonly default: {
-            readonly name: "Fuse Explorer";
-            readonly url: "https://explorer.fuse.io/";
-        };
-    };
-    readonly contracts: {
-        readonly multicall3: {
-            readonly address: `0x${string}`;
-            readonly blockCreated: 16146628;
-        };
-    };
-};
-export declare const arbitrumNova: {
-    readonly id: 42170;
-    readonly name: "Arbitrum Nova";
-    readonly network: "arbitrumnova";
-    readonly nativeCurrency: {
-        readonly name: "Ether";
-        readonly symbol: "ETH";
-        readonly decimals: 18;
-    };
-    readonly rpcUrls: {
-        readonly default: {
-            readonly http: readonly ["https://nova.arbitrum.io/rpc"];
-        };
-        readonly public: {
-            readonly http: readonly ["https://nova.arbitrum.io/rpc"];
-        };
-    };
-    readonly blockExplorers: {
-        readonly etherscan: {
-            readonly name: "Arbitrum Nova Chain Explorer";
-            readonly url: "https://nova-explorer.arbitrum.io/";
-        };
-        readonly default: {
-            readonly name: "Arbitrum Nova Chain Explorer";
-            readonly url: "https://nova-explorer.arbitrum.io/";
-        };
-    };
-    readonly contracts: {
-        readonly multicall3: {
-            readonly address: `0x${string}`;
-            readonly blockCreated: 400008;
-        };
-    };
-};
-export declare const okex: {
-    readonly id: 66;
-    readonly name: "OKXChain";
-    readonly network: "okxchain";
-    readonly nativeCurrency: {
-        readonly name: "OKC Token";
-        readonly symbol: "OKT";
-        readonly decimals: 18;
-    };
-    readonly rpcUrls: {
-        readonly default: {
-            readonly http: readonly ["https://exchainrpc.okex.org"];
-        };
-        readonly public: {
-            readonly http: readonly ["https://exchainrpc.okex.org"];
-        };
-    };
-    readonly blockExplorers: {
-        readonly etherscan: {
-            readonly name: "OKC Explorer";
-            readonly url: "https://www.oklink.com/en/okc/";
-        };
-        readonly default: {
-            readonly name: "OKC Explorer";
-            readonly url: "https://www.oklink.com/en/okc/";
-        };
-    };
-    readonly contracts: {
-        readonly multicall3: {
-            readonly address: `0x${string}`;
-            readonly blockCreated: 10364792;
         };
     };
 };
@@ -407,40 +134,6 @@ export declare const palm: {
         readonly multicall3: {
             readonly address: `0x${string}`;
             readonly blockCreated: 8005532;
-        };
-    };
-};
-export declare const boba: {
-    readonly id: 288;
-    readonly name: "Boba";
-    readonly network: "boba";
-    readonly nativeCurrency: {
-        readonly name: "Ether";
-        readonly symbol: "ETH";
-        readonly decimals: 18;
-    };
-    readonly rpcUrls: {
-        readonly default: {
-            readonly http: readonly ["https://mainnet.boba.network"];
-        };
-        readonly public: {
-            readonly http: readonly ["https://mainnet.boba.network"];
-        };
-    };
-    readonly blockExplorers: {
-        readonly etherscan: {
-            readonly name: "Bobascan";
-            readonly url: "https://bobascan.com/";
-        };
-        readonly default: {
-            readonly name: "Bobascan";
-            readonly url: "https://bobascan.com/";
-        };
-    };
-    readonly contracts: {
-        readonly multicall3: {
-            readonly address: `0x${string}`;
-            readonly blockCreated: 446859;
         };
     };
 };
@@ -546,4 +239,28 @@ export declare const bttc: {
         };
     };
 };
-export declare const viemConfig: Record<number, PublicClientConfig>;
+export declare const core: {
+    readonly id: 1116;
+    readonly name: "Core";
+    readonly network: "core";
+    readonly nativeCurrency: {
+        readonly name: "Core";
+        readonly symbol: "CORE";
+        readonly decimals: 18;
+    };
+    readonly rpcUrls: {
+        readonly default: {
+            readonly http: readonly ["https://rpc.coredao.org", "https://rpc-core.icecreamswap.com"];
+        };
+        readonly public: {
+            readonly http: readonly ["https://rpc.coredao.org", "https://rpc-core.icecreamswap.com"];
+        };
+    };
+    readonly contracts: {
+        readonly multicall3: {
+            readonly address: "0xC4b2e1718E850535A0f3e79F7fC522d966821688";
+            readonly blockCreated: 5087121;
+        };
+    };
+};
+export declare const config: Record<number, PublicClientConfig>;

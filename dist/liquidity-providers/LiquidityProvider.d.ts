@@ -1,5 +1,5 @@
-import { ChainId } from '@sushiswap/chain';
-import type { Token } from '@sushiswap/currency';
+import { ChainId } from 'sushi/chain';
+import type { Token } from 'sushi/currency';
 import { PublicClient } from 'viem';
 import type { PoolCode } from '../pools/PoolCode';
 export declare enum LiquidityProviders {
@@ -23,7 +23,10 @@ export declare enum LiquidityProviders {
     Biswap = "Biswap",
     CurveSwap = "CurveSwap",
     DovishV3 = "DovishV3",
-    LaserSwap = "LaserSwap"
+    Wagmi = "Wagmi",
+    LaserSwap = "LaserSwap",
+    BaseSwap = "BaseSwap",
+    AlgebraIntegral = "AlgebraIntegral"
 }
 export declare abstract class LiquidityProvider {
     chainId: ChainId;

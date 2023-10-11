@@ -1,4 +1,4 @@
-import type { ChainId } from '@sushiswap/chain';
+import type { ChainId } from 'sushi/chain';
 import { PublicClient } from 'viem';
 import type { PoolCode } from '../pools/PoolCode';
 import { LiquidityProvider, LiquidityProviders } from './LiquidityProvider';

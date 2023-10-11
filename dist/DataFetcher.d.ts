@@ -1,5 +1,5 @@
-import { ChainId } from '@sushiswap/chain';
-import { Type } from '@sushiswap/currency';
+import { ChainId } from 'sushi/chain';
+import { Type } from 'sushi/currency';
 import { PublicClient } from 'viem';
 import { LiquidityProvider, LiquidityProviders } from './liquidity-providers/LiquidityProvider';
 import type { PoolCode } from './pools/PoolCode';
@@ -9,10 +9,9 @@ export declare class DataFetcher {
     poolCodes: Map<LiquidityProviders, Map<string, PoolCode>>;
     stateId: number;
     web3Client: PublicClient;
-    databaseClient: any;
     private static cache;
     static onChain(chainId: ChainId): DataFetcher;
-    constructor(chainId: ChainId, web3Client?: PublicClient);
+    constructor(chainId: ChainId, publicClient?: PublicClient);
     _providerIsIncluded(lp: LiquidityProviders, liquidity?: LiquidityProviders[]): boolean;
     startDataFetching(providers?: LiquidityProviders[]): void;
     stopDataFetching(): void;

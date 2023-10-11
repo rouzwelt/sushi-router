@@ -1,8 +1,8 @@
-import { ChainId } from '@sushiswap/chain';
-import { Token } from '@sushiswap/currency';
-import { PublicClient } from 'viem';
+import { ChainId } from 'sushi/chain';
+import { Token } from 'sushi/currency';
+import { Address, PublicClient } from 'viem';
 export interface TridentStaticPool {
-    address: string;
+    address: Address;
     token0: Token;
     token1: Token;
     type: 'STABLE_POOL' | 'CONSTANT_PRODUCT_POOL';

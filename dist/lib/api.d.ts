@@ -1,14 +1,15 @@
-import { Token } from '@sushiswap/currency';
+import { Token } from 'sushi/currency';
+import { Address } from 'viem';
 export interface PoolResponse2 {
     type: string;
-    address: string;
+    address: Address;
     twapEnabled: boolean;
     swapFee: number;
     liquidityUSD: string;
     isWhitelisted: true;
     token0: {
         symbol: string;
-        address: string;
+        address: Address;
         status: string;
         id: string;
         name: string;
@@ -18,7 +19,7 @@ export interface PoolResponse2 {
     };
     token1: {
         symbol: string;
-        address: string;
+        address: Address;
         status: string;
         id: string;
         name: string;
