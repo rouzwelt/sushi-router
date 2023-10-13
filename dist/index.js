@@ -70858,11 +70858,19 @@ var serialize = (val) => {
       circRefColl.push(value);
     }
     if (typeof value === "bigint")
-      return value.toString();
+      return value.toString() + "n";
     return value;
   });
 };
-var memoizer = (0, import_memoize_fs.default)({ cachePath: "./mem-cache", serialize });
+var deserialize = (val) => {
+  return JSON.parse(val, function(_key, value) {
+    if (typeof value === "string" && /^\d+n$/.test(value)) {
+      return BigInt(value.slice(0, -1));
+    } else
+      return value;
+  }).data;
+};
+var memoizer = (0, import_memoize_fs.default)({ cachePath: "./mem-cache", serialize, deserialize });
 
 // src/liquidity-providers/UniswapV2Base.ts
 var UniswapV2BaseProvider = class extends LiquidityProvider {
@@ -71513,7 +71521,6 @@ var UniV3PoolCode = class extends PoolCode {
   getStartPoint() {
     return PoolCode.RouteProcessorAddress;
   }
-  // eslint-disable-next-line unused-imports/no-unused-vars, no-unused-vars, @typescript-eslint/no-unused-vars
   getSwapCodeForRouteProcessor(leg, route, to) {
     return "unsupported";
   }
@@ -74710,7 +74717,6 @@ var TridentCLPoolCode = class extends PoolCode {
   getStartPoint() {
     return PoolCode.RouteProcessorAddress;
   }
-  // eslint-disable-next-line unused-imports/no-unused-vars, no-unused-vars, @typescript-eslint/no-unused-vars
   getSwapCodeForRouteProcessor(leg, route, to) {
     return "unsupported";
   }

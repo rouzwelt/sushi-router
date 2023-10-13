@@ -14,13 +14,18 @@ const serialize = (val: any) => {
             // store value in collection
             circRefColl.push(value);
         }
-        if (typeof value === 'bigint') return value.toString()
+        if (typeof value === 'bigint') return value.toString() + "n"
         return value;
     });
 }
 
-// const deserialize = (val: string) => {
-//   return JSON.parse(val).data;
-// }
+const deserialize = (val: string) => {
+    return JSON.parse(val, function(_key, value) {
+        if (typeof value === "string" && /^\d+n$/.test(value)) {
+            return BigInt(value.slice(0, -1));
+        }
+        else return value;
+    }).data;
+}
 
-export const memoizer = memoize({ cachePath: "./mem-cache", serialize })
+export const memoizer = memoize({ cachePath: "./mem-cache", serialize, deserialize })
