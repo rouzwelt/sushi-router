@@ -1,0 +1,80 @@
+import { Token } from "sushi/currency";
+import { fallback } from "viem";
+import { Router } from "./index";
+
+const transport = fallback(
+  [
+    http("https://1rpc.io/eth"),
+    http("https://ethereum.publicnode.com"),
+    http("https://cloudflare-eth.com"),
+    http("https://eth.llamarpc.com"),
+    // http(otherUrl),
+    // http(anotherUrl)
+  ],
+  { rank: true }
+);
+
+const dataFetcher = new DataFetcher(
+  1,
+  createPublicClient({
+    chain: config[1]?.chain,
+    transport
+  })
+);
+
+// start the data fetcher with desired liquidity providers
+const liquidityProviders = [
+  LiquidityProviders.CurveSwap,
+  // LiquidityProviders.SushiSwapV3
+]
+dataFetcher.startDataFetching(liquidityProviders);
+
+// get pools and data for a token pair
+const fromToken = new Token({
+  chainId: 1,
+  decimals: 18,
+  address: "0x853d955aCEf822Db058eb8505911ED77F175b99e",
+});
+const toToken = new Token({
+  chainId: 1,
+  decimals: 6,
+  address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+});
+
+
+(async() => {
+  // use memozie or block number as optional args for getting pool 
+  // data at specific block height and memoize the result, if omitted
+  // the data will be at last block number and not memoized
+  await dataFetcher.fetchPoolsForToken(fromToken, toToken, undefined, 
+    { blockNumber: 18308420n, memoize: true }
+  );
+
+  // find the best route
+  const pcMap = dataFetcher.getCurrentPoolCodeMap(fromToken, toToken);
+  const route = Router.findBestRoute(
+    pcMap,
+    1,
+    fromToken,
+    10000000000000000000n,
+    toToken,
+    // gasPrice.toNumber()
+    30e9
+  );
+  // if (route.status == "NoWay") throw "found no route for this token pair";
+
+  // build price, be aware of each token decimals, should factor them yourself
+  // const price = route.amountOutBN / amountIn;
+  console.log(route);
+
+setTimeout(process.exit(0), 10000);
+  // get params for calling RouteProcessor3 contract
+  // const params = Router.routeProcessor2Params(
+  //   pcMap,
+  //   route,
+  //   fromToken,
+  //   toToken,
+  //   receiverAddress,
+  //   routeProcessor3Address,
+  // );
+})();
