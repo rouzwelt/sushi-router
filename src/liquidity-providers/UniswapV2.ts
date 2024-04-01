@@ -20,7 +20,7 @@ export class UniswapV2Provider extends UniswapV2BaseProvider {
     const initCodeHash = {
       [ChainId.ETHEREUM]: '0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f',
       [ChainId.POLYGON]: '0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f',
-      [ChainId.ARBITRUM]: '0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f',
+      [ChainId.ARBITRUM]: '0x203292ba0dd502af6ebb95c15c6066e85a0c955009d304f8524c41a5851c6e98',
       [ChainId.BSC]: '0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f',
       [ChainId.AVALANCHE]: '0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f',
       [ChainId.OPTIMISM]: '0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f',
