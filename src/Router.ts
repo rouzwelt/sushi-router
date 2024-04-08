@@ -17,6 +17,7 @@ import { PoolCode } from './pools/PoolCode'
 import { getRouteProcessorCode } from './TinesToRouteProcessor'
 import { getRouteProcessor2Code, PermitData } from './TinesToRouteProcessor2'
 import { getRouteProcessor4Code } from './TinesToRouteProcessor4'
+import { WFLR } from './liquidity-providers/Enosys'
 
 function TokenToRToken(t: Type): RToken {
   if (t instanceof Token) return t as RToken
@@ -100,15 +101,19 @@ export class Router {
     const networks: NetworkInfo[] = [
       {
         chainId: chainId,
-        baseToken: WNATIVE[chainId] as RToken,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        baseToken: chainId === 14 ? WFLR as RToken : WNATIVE[chainId] as RToken,
         gasPrice: gasPrice as number,
       },
       {
         chainId: getBentoChainId(chainId),
-        baseToken: convertTokenToBento(WNATIVE[chainId]),
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        baseToken: chainId === 14 ? convertTokenToBento(WFLR) : convertTokenToBento(WNATIVE[chainId]),
         gasPrice: gasPrice as number,
       },
-    ]
+    ];
 
     let poolCodes = Array.from(poolCodesMap.values())
     if (providers) {

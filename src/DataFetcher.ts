@@ -29,6 +29,11 @@ import { UbeSwapProvider } from './liquidity-providers/UbeSwap'
 import { UniswapV2Provider } from './liquidity-providers/UniswapV2'
 import { UniswapV3Provider } from './liquidity-providers/UniswapV3'
 import type { PoolCode } from './pools/PoolCode'
+import { Enosys } from './liquidity-providers/Enosys'
+import { Router } from './Router'
+import { Token } from '.'
+import { ethers } from 'ethers'
+import { Camelot } from './liquidity-providers/Camelot'
 
 // import { create } from 'viem'
 const isTest = process.env['NODE_ENV'] === 'test' || process.env['NEXT_PUBLIC_TEST'] === 'true'
@@ -99,7 +104,12 @@ export class DataFetcher {
     this.stopDataFetching()
     this.poolCodes = new Map()
 
-    this.providers = [new NativeWrapProvider(this.chainId, this.web3Client)]
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this.providers = []
+    // this.chainId === 14
+    //   ? []
+    //   : [new NativeWrapProvider(this.chainId, this.web3Client)];
 
     if (this._providerIsIncluded(LiquidityProviders.SushiSwapV2, providers)) {
       try {
@@ -313,6 +323,26 @@ export class DataFetcher {
     if (this._providerIsIncluded(LiquidityProviders.LaserSwap, providers)) {
       try {
         const provider = new LaserSwapV2Provider(this.chainId, this.web3Client)
+        this.providers.push(provider)
+      } catch (e: unknown) {
+        // console.warn(e.message)
+      }
+    }
+
+    if (this._providerIsIncluded(LiquidityProviders.Enosys, providers)) {
+      try {
+        const provider = new Enosys(this.chainId, this.web3Client)
+        this.providers.push(provider)
+      } catch (e: unknown) {
+        // console.warn(e.message)
+      }
+    }
+
+    if (this._providerIsIncluded(LiquidityProviders.Camelot, providers)) {
+      try {
+        const provider = new Camelot(this.chainId, this.web3Client, 
+          // this.databaseClient
+        )
         this.providers.push(provider)
       } catch (e: unknown) {
         // console.warn(e.message)
