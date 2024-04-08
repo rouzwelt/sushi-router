@@ -23,7 +23,9 @@ export declare enum LiquidityProviders {
     Biswap = "Biswap",
     CurveSwap = "CurveSwap",
     DovishV3 = "DovishV3",
-    LaserSwap = "LaserSwap"
+    LaserSwap = "LaserSwap",
+    Enosys = "Enosys",
+    Camelot = "Camelot"
 }
 export declare abstract class LiquidityProvider {
     chainId: ChainId;
