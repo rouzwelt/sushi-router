@@ -1,8 +1,7 @@
-import { ChainId, chainShortName } from 'sushi/chain'
-import type { Token } from 'sushi/currency'
 import { PublicClient } from 'viem'
-
-import type { PoolCode } from '../pools/PoolCode'
+import { ChainId, chainShortName } from '../../chain'
+import type { Token } from '../../currency'
+import type { PoolCode } from '../pool-codes'
 
 export enum LiquidityProviders {
   SushiSwapV2 = 'SushiSwapV2',
@@ -13,6 +12,7 @@ export enum LiquidityProviders {
   QuickSwap = 'QuickSwap',
   ApeSwap = 'ApeSwap',
   PancakeSwap = 'PancakeSwap',
+  PancakeSwapV3 = 'PancakeSwapV3',
   TraderJoe = 'TraderJoe',
   Dfyn = 'Dfyn',
   Elk = 'Elk',
@@ -29,6 +29,21 @@ export enum LiquidityProviders {
   LaserSwap = 'LaserSwap',
   BaseSwap = 'BaseSwap',
   AlgebraIntegral = 'AlgebraIntegral',
+  Solarbeam = 'Solarbeam',
+  Swapsicle = 'Swapsicle',
+  VVSStandard = 'VVSStandard',
+  Fraxswap = 'Fraxswap',
+  SwapBlast = 'SwapBlast',
+  BlastDEX = 'BlastDEX',
+  MonoswapV2 = 'MonoswapV2',
+  MonoswapV3 = 'MonoswapV3',
+  ThrusterV2 = 'ThrusterV2',
+  ThrusterV3 = 'ThrusterV3',
+  DyorV2 = 'DyorV2',
+  HyperBlast = 'HyperBlast',
+  KinetixV3 = 'KinetixV3',
+  Camelot = 'Camelot',
+  Enosys = 'Enosys',
 }
 
 export abstract class LiquidityProvider {

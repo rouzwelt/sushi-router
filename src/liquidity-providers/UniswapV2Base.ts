@@ -1,28 +1,23 @@
 import { getCreate2Address } from '@ethersproject/address'
-import { getReservesAbi } from 'sushi/abi'
-import { ChainId } from 'sushi/chain'
-import { Token } from 'sushi/currency'
-// import { PrismaClient } from '@sushiswap/database'
+import { add, getUnixTime } from 'date-fns'
+import { Address, Hex, PublicClient, encodePacked, keccak256 } from 'viem'
+import { getReservesAbi } from '../../abi'
+import { ChainId } from '../../chain'
 import {
   ADDITIONAL_BASES,
   BASES_TO_CHECK_TRADES_AGAINST,
-} from '@sushiswap/router-config'
-import { ConstantProductRPool, RToken } from '@sushiswap/tines'
-import { add, getUnixTime } from 'date-fns'
-import { Address, encodePacked, Hex, keccak256, PublicClient } from 'viem'
-
-import { getCurrencyCombinations } from '../getCurrencyCombinations'
+} from '../../config'
+import { Token } from '../../currency'
+import { ConstantProductRPool, RToken } from '../../tines'
+import { getCurrencyCombinations } from '../get-currency-combinations'
 import {
-  // discoverNewPools,
+  PoolResponse2,
   filterOnDemandPools,
   filterTopPools,
-  // getAllPools,
   mapToken,
-  PoolResponse2,
 } from '../lib/api'
-import { ConstantProductPoolCode } from '../pools/ConstantProductPool'
-import type { PoolCode } from '../pools/PoolCode'
-import { LiquidityProvider, LiquidityProviders } from './LiquidityProvider'
+import { ConstantProductPoolCode, type PoolCode } from '../pool-codes'
+import { LiquidityProvider } from './LiquidityProvider'
 import { memoizer } from '../memoizer'
 
 interface PoolInfo {
@@ -63,14 +58,12 @@ export abstract class UniswapV2BaseProvider extends LiquidityProvider {
   refreshAvailablePoolsTimestamp = getUnixTime(
     add(Date.now(), { seconds: this.FETCH_AVAILABLE_POOLS_AFTER_SECONDS }),
   )
-  // databaseClient: PrismaClient | undefined
 
   constructor(
     chainId: ChainId,
     web3Client: PublicClient,
     factory: Record<number, Address>,
     initCodeHash: Record<number, Hex>,
-    // databaseClient?: PrismaClient,
   ) {
     super(chainId, web3Client)
     this.factory = factory
@@ -80,7 +73,6 @@ export abstract class UniswapV2BaseProvider extends LiquidityProvider {
         `${this.getType()} cannot be instantiated for chainid ${chainId}, no factory or initCodeHash`,
       )
     }
-    // this.databaseClient = databaseClient
   }
 
   // async initialize() {
@@ -546,9 +538,9 @@ export abstract class UniswapV2BaseProvider extends LiquidityProvider {
     const set = new Set<Token>([
       t0,
       t1,
-      ...BASES_TO_CHECK_TRADES_AGAINST[this.chainId],
-      ...(ADDITIONAL_BASES[this.chainId][t0.address] || []),
-      ...(ADDITIONAL_BASES[this.chainId][t1.address] || []),
+      ...(BASES_TO_CHECK_TRADES_AGAINST?.[this.chainId] ?? []),
+      ...(ADDITIONAL_BASES?.[this.chainId]?.[t0.address] ?? []),
+      ...(ADDITIONAL_BASES?.[this.chainId]?.[t1.address] ?? []),
     ])
     return Array.from(set)
   }
@@ -560,9 +552,9 @@ export abstract class UniswapV2BaseProvider extends LiquidityProvider {
       t2,
     ).map(([c0, c1]) => (c0.sortsBefore(c1) ? [c0, c1] : [c1, c0]))
     return currencyCombination.map((combination) => ({
-      address: this._getPoolAddress(combination[0], combination[1]),
-      token0: combination[0],
-      token1: combination[1],
+      address: this._getPoolAddress(combination[0]!, combination[1]!),
+      token0: combination[0]!,
+      token1: combination[1]!,
       fee: this.fee,
     }))
     // return pools

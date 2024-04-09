@@ -1,11 +1,9 @@
-import { ChainId } from 'sushi/chain'
-// import { PrismaClient } from '@sushiswap/database'
+import { PublicClient } from 'viem'
+import { ChainId } from '../../chain'
 import {
   SUSHISWAP_V2_FACTORY_ADDRESS,
   SUSHISWAP_V2_INIT_CODE_HASH,
-} from '@sushiswap/v2-sdk'
-import { PublicClient } from 'viem'
-
+} from '../../config'
 import { LiquidityProviders } from './LiquidityProvider'
 import { UniswapV2BaseProvider } from './UniswapV2Base'
 

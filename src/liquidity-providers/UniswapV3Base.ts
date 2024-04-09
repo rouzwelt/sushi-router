@@ -1,14 +1,12 @@
-import { erc20Abi, tickLensAbi } from 'sushi/abi'
-import { ChainId } from 'sushi/chain'
-import { Currency, Token, Type } from 'sushi/currency'
-// import { PrismaClient } from '@sushiswap/database'
-import { RToken, UniV3Pool } from '@sushiswap/tines'
-import { computePoolAddress, FeeAmount, TICK_SPACINGS } from '@sushiswap/v3-sdk'
 import { Address, PublicClient } from 'viem'
-
-import { getCurrencyCombinations } from '../getCurrencyCombinations'
-import type { PoolCode } from '../pools/PoolCode'
-import { UniV3PoolCode } from '../pools/UniV3Pool'
+import { erc20Abi, tickLensAbi } from '../../abi'
+import { ChainId } from '../../chain'
+import { SushiSwapV3FeeAmount, TICK_SPACINGS } from '../../config'
+import { Currency, Token, Type } from '../../currency'
+import { computeSushiSwapV3PoolAddress } from '../../pool'
+import { RToken, UniV3Pool } from '../../tines'
+import { getCurrencyCombinations } from '../get-currency-combinations'
+import { type PoolCode, UniV3PoolCode } from '../pool-codes'
 import { LiquidityProvider } from './LiquidityProvider'
 import { memoizer } from '../memoizer'
 
@@ -30,7 +28,7 @@ interface V3Pool {
 
 export const NUMBER_OF_SURROUNDING_TICKS = 1000 // 10% price impact
 
-const getActiveTick = (tickCurrent: number, feeAmount: FeeAmount) =>
+const getActiveTick = (tickCurrent: number, feeAmount: SushiSwapV3FeeAmount) =>
   typeof tickCurrent === 'number' && feeAmount
     ? Math.floor(tickCurrent / TICK_SPACINGS[feeAmount]) *
       TICK_SPACINGS[feeAmount]
@@ -46,14 +44,13 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
   poolsByTrade: Map<string, string[]> = new Map()
   pools: Map<string, PoolCode> = new Map()
 
-  blockListener?: () => void
+  blockListener?: (() => void) | undefined
   unwatchBlockNumber?: () => void
 
   isInitialized = false
   factory: Record<number, Address> = {}
   initCodeHash: Record<number, string> = {}
   tickLens: Record<number, string> = {}
-  // databaseClient: PrismaClient | undefined
 
   constructor(
     chainId: ChainId,
@@ -61,7 +58,6 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
     factory: Record<number, Address>,
     initCodeHash: Record<number, string>,
     tickLens: Record<number, string>,
-    // databaseClient?: PrismaClient,
   ) {
     super(chainId, web3Client)
     this.factory = factory
@@ -76,7 +72,6 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
         `${this.getType()} cannot be instantiated for chainid ${chainId}, no factory or initCodeHash`,
       )
     }
-    // this.databaseClient = databaseClient
   }
 
   async fetchPoolsForToken(
@@ -203,8 +198,8 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
 
     staticPools.forEach((pool, i) => {
       if (slot0 === undefined || !slot0[i]) return
-      const sqrtPriceX96 = slot0[i].result?.[0]
-      const tick = slot0[i].result?.[1]
+      const sqrtPriceX96 = slot0[i]!.result?.[0]
+      const tick = slot0[i]!.result?.[1]
       if (!sqrtPriceX96 || sqrtPriceX96 === 0n || typeof tick !== 'number')
         return
       const activeTick = getActiveTick(tick, pool.fee)
@@ -346,8 +341,8 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
     )
 
     const wordList = existingPools.flatMap((pool, i) => {
-      const minIndex = minIndexes[i]
-      const maxIndex = maxIndexes[i]
+      const minIndex = minIndexes[i]!
+      const maxIndex = maxIndexes[i]!
 
       return Array.from(
         { length: maxIndex - minIndex + 1 },
@@ -386,9 +381,9 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
         ticksContracts,
       ])
 
-    const ticks: NonNullable<typeof tickResults[number]['result']>[] = []
+    const ticks: NonNullable<(typeof tickResults)[number]['result']>[] = []
     tickResults.forEach((t, i) => {
-      const index = wordList[i].index
+      const index = wordList[i]!.index
       ticks[index] = (ticks[index] || []).concat(t.result || [])
     })
 
@@ -396,13 +391,13 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
     existingPools.forEach((pool, i) => {
       if (
         !liquidityResults?.[i] ||
-        !token0Balances?.[i].result ||
-        !token1Balances?.[i].result
+        !token0Balances?.[i]!.result ||
+        !token1Balances?.[i]!.result
       )
         return
-      const balance0 = token0Balances[i].result
-      const balance1 = token1Balances[i].result
-      const liquidity = liquidityResults[i].result
+      const balance0 = token0Balances[i]!.result
+      const balance1 = token1Balances[i]!.result
+      const liquidity = liquidityResults[i]!.result
       if (
         balance0 === undefined ||
         balance1 === undefined ||
@@ -410,17 +405,15 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
       )
         return
 
-      const poolTicks = ticks[i]
-        .map((tick) => ({
-          index: tick.tick,
-          DLiquidity: tick.liquidityNet,
-        }))
-        .sort((a, b) => a.index - b.index)
+      const poolTicks = ticks[i]!.map((tick) => ({
+        index: tick.tick,
+        DLiquidity: tick.liquidityNet,
+      })).sort((a, b) => a.index - b.index)
 
       const lowerUnknownTick =
-        minIndexes[i] * TICK_SPACINGS[pool.fee] * 256 - TICK_SPACINGS[pool.fee]
+        minIndexes[i]! * TICK_SPACINGS[pool.fee] * 256 - TICK_SPACINGS[pool.fee]
       console.assert(
-        poolTicks.length === 0 || lowerUnknownTick < poolTicks[0].index,
+        poolTicks.length === 0 || lowerUnknownTick < poolTicks[0]!.index,
         'Error 236: unexpected min tick index',
       )
       poolTicks.unshift({
@@ -428,9 +421,9 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
         DLiquidity: 0n,
       })
       const upperUnknownTick =
-        (maxIndexes[i] + 1) * TICK_SPACINGS[pool.fee] * 256
+        (maxIndexes[i]! + 1) * TICK_SPACINGS[pool.fee] * 256
       console.assert(
-        poolTicks[poolTicks.length - 1].index < upperUnknownTick,
+        poolTicks[poolTicks.length - 1]!.index < upperUnknownTick,
         'Error 244: unexpected max tick index',
       )
       poolTicks.push({
@@ -470,23 +463,25 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
   getStaticPools(t1: Token, t2: Token): StaticPool[] {
     const currencyCombinations = getCurrencyCombinations(this.chainId, t1, t2)
 
-    const allCurrencyCombinationsWithAllFees: [Type, Type, FeeAmount][] =
-      currencyCombinations.reduce<[Currency, Currency, FeeAmount][]>(
-        (list, [tokenA, tokenB]) => {
-          if (tokenA !== undefined && tokenB !== undefined) {
-            return list.concat([
-              [tokenA, tokenB, FeeAmount.LOWEST],
-              [tokenA, tokenB, FeeAmount.LOW],
-              [tokenA, tokenB, FeeAmount.MEDIUM],
-              [tokenA, tokenB, FeeAmount.HIGH],
-            ])
-          }
-          return []
-        },
-        [],
-      )
+    const allCurrencyCombinationsWithAllFees: [
+      Type,
+      Type,
+      SushiSwapV3FeeAmount,
+    ][] = currencyCombinations.reduce<
+      [Currency, Currency, SushiSwapV3FeeAmount][]
+    >((list, [tokenA, tokenB]) => {
+      if (tokenA !== undefined && tokenB !== undefined) {
+        return list.concat([
+          [tokenA, tokenB, SushiSwapV3FeeAmount.LOWEST],
+          [tokenA, tokenB, SushiSwapV3FeeAmount.LOW],
+          [tokenA, tokenB, SushiSwapV3FeeAmount.MEDIUM],
+          [tokenA, tokenB, SushiSwapV3FeeAmount.HIGH],
+        ])
+      }
+      return []
+    }, [])
 
-    const filtered: [Token, Token, FeeAmount][] = []
+    const filtered: [Token, Token, SushiSwapV3FeeAmount][] = []
     allCurrencyCombinationsWithAllFees.forEach(
       ([currencyA, currencyB, feeAmount]) => {
         if (currencyA && currencyB && feeAmount) {
@@ -502,8 +497,9 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
       },
     )
     return filtered.map(([currencyA, currencyB, fee]) => ({
-      address: computePoolAddress({
-        factoryAddress: this.factory[this.chainId as keyof typeof this.factory],
+      address: computeSushiSwapV3PoolAddress({
+        factoryAddress:
+          this.factory[this.chainId as keyof typeof this.factory]!,
         tokenA: currencyA.wrapped,
         tokenB: currencyB.wrapped,
         fee,

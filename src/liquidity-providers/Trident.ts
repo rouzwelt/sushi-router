@@ -1,40 +1,39 @@
+import { add, getUnixTime } from 'date-fns'
+import { Address, PublicClient } from 'viem'
 import {
   balanceOfAbi,
   getReservesAbi,
   getStableReservesAbi,
   totalsAbi,
-} from 'sushi/abi'
-import { BENTOBOX_ADDRESS, BentoBoxChainId } from '@sushiswap/bentobox-sdk'
-import type { ChainId } from 'sushi/chain'
-import { Token } from 'sushi/currency'
-// import { PrismaClient } from '@sushiswap/database'
+} from '../../abi'
+import { type ChainId } from '../../chain'
+import {
+  BENTOBOX_ADDRESS,
+  BentoBoxChainId,
+  TRIDENT_CONSTANT_POOL_FACTORY_ADDRESS,
+  TRIDENT_STABLE_POOL_FACTORY_ADDRESS,
+} from '../../config'
+import { Token } from '../../currency'
 import {
   BridgeBento,
   ConstantProductRPool,
-  Rebase,
   RToken,
+  Rebase,
   StableSwapRPool,
+  convertTokenToBento,
   toShareBI,
-} from '@sushiswap/tines'
+} from '../../tines'
 import {
-  TRIDENT_CONSTANT_POOL_FACTORY_ADDRESS,
-  TRIDENT_STABLE_POOL_FACTORY_ADDRESS,
-  TridentChainId,
-} from '@sushiswap/trident-sdk'
-import { add, getUnixTime } from 'date-fns'
-import { Address, PublicClient } from 'viem'
-
-import {
-  // discoverNewPools,
+  PoolResponse2,
   filterOnDemandPools,
   filterTopPools,
-  // getAllPools,
   mapToken,
-  PoolResponse2,
 } from '../lib/api'
-import { BentoBridgePoolCode } from '../pools/BentoBridge'
-import { BentoPoolCode } from '../pools/BentoPool'
-import type { PoolCode } from '../pools/PoolCode'
+import {
+  BentoBridgePoolCode,
+  BentoPoolCode,
+  type PoolCode,
+} from '../pool-codes'
 import {
   TridentStaticPool,
   TridentStaticPoolFetcher,
@@ -48,19 +47,6 @@ export function convertToNumbers(arr: bigint[]): (number | undefined)[] {
     if (a === undefined) return undefined
     return parseInt(a.toString(16), 16)
   })
-}
-
-export function getBentoChainId(chainId: string | number | undefined): string {
-  return `Bento ${chainId}`
-}
-
-export function convertTokenToBento(token: Token): RToken {
-  const t: RToken = { ...token } as RToken
-  t.chainId = getBentoChainId(token.chainId)
-  t.name = getBentoChainId(token.name)
-  t.symbol = getBentoChainId(token.symbol)
-  delete t.tokenId
-  return t
 }
 
 interface PoolInfo {
@@ -676,17 +662,16 @@ export class TridentProvider extends LiquidityProvider {
     const bridgesToCreate: BentoBridgePoolCode[] = []
 
     sortedTokens.forEach((t) => {
-      const fakeBridgeAddress = `Bento bridge for ${t.symbol}`
-      if (excludePools?.has(fakeBridgeAddress)) return
       if (!this.bridges.has(t.address)) {
         const pool = new BridgeBento(
-          fakeBridgeAddress,
+          this.bentoBox[this.chainId as BentoBoxChainId],
           t as RToken,
           convertTokenToBento(t),
           0n,
           0n,
           0n,
         )
+        if (excludePools?.has(pool.uniqueID())) return
         bridgesToCreate.push(
           new BentoBridgePoolCode(
             pool,
@@ -967,7 +952,7 @@ export class TridentProvider extends LiquidityProvider {
       })
       bridge.updateReserves(elastic, base)
       bridge.freeLiquidity = Number(balance)
-      this.bridges.set(bridge.address.toLowerCase(), bc)
+      this.bridges.set(bridge.uniqueID(), bc)
     })
 
     stablePoolCodesToCreate.forEach((poolCode, i) => {
