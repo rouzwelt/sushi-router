@@ -1,6 +1,5 @@
-import type { MultiRoute, RouteLeg, RPool } from '@sushiswap/tines'
-
-import { LiquidityProviders } from '../liquidity-providers'
+import type { MultiRoute, RPool, RouteLeg } from '../../tines/index.js'
+import { LiquidityProviders } from '../liquidity-providers/index.js'
 
 // RPool extention for RP coding
 export abstract class PoolCode {

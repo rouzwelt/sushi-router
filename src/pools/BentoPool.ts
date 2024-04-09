@@ -1,15 +1,14 @@
+import { Address, encodeAbiParameters } from 'viem'
 import {
   ConstantProductRPool,
   MultiRoute,
-  RouteLeg,
   RPool,
+  RouteLeg,
   StableSwapRPool,
-} from '@sushiswap/tines'
-import { ethers } from 'ethers'
-
-import { HEXer } from '../HEXer'
-import { LiquidityProviders } from '../liquidity-providers'
-import { PoolCode } from './PoolCode'
+} from '../../tines/index.js'
+import { HEXer } from '../HEXer.js'
+import { LiquidityProviders } from '../liquidity-providers/index.js'
+import { PoolCode } from './PoolCode.js'
 
 function getPoolTypeTicker(pool: RPool): string {
   if (pool instanceof ConstantProductRPool) return 'Classic'
@@ -35,13 +34,17 @@ export class BentoPoolCode extends PoolCode {
     _route: MultiRoute,
     to: string,
   ): string {
-    const coder = new ethers.utils.AbiCoder()
     // TODO: add unwrap bento = true variant
     // address tokenIn, address recipient, bool unwrapBento
-    const poolData = coder.encode(
-      ['address', 'address', 'bool'],
-      [leg.tokenFrom.address, to, false],
+    const poolData = encodeAbiParameters(
+      [
+        { name: 'tokenIn', type: 'address' },
+        { name: 'recipient', type: 'address' },
+        { name: 'unwrapBento', type: 'bool' },
+      ],
+      [leg.tokenFrom.address as Address, to as Address, false],
     )
+
     const code = new HEXer()
       .uint8(21) // swapTrident
       .address(leg.poolAddress)
@@ -51,17 +54,20 @@ export class BentoPoolCode extends PoolCode {
     return code
   }
 
-  getSwapCodeForRouteProcessor2(
+  override getSwapCodeForRouteProcessor2(
     leg: RouteLeg,
     _route: MultiRoute,
     to: string,
   ): string {
     // TODO: add unwrap bento = true optimization
-    const coder = new ethers.utils.AbiCoder()
     // address tokenIn, address recipient, bool unwrapBento
-    const poolData = coder.encode(
-      ['address', 'address', 'bool'],
-      [leg.tokenFrom.address, to, false],
+    const poolData = encodeAbiParameters(
+      [
+        { name: 'tokenIn', type: 'address' },
+        { name: 'recipient', type: 'address' },
+        { name: 'unwrapBento', type: 'bool' },
+      ],
+      [leg.tokenFrom.address as Address, to as Address, false],
     )
     const code = new HEXer()
       .uint8(4) // swapTrident

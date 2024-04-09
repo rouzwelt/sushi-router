@@ -1,9 +1,8 @@
-import type { BridgeBento, MultiRoute, RouteLeg } from '@sushiswap/tines'
-
-import { HEXer } from '../HEXer'
-import { LiquidityProviders } from '../liquidity-providers'
-import { Bridge } from './Bridge'
-import { PoolCode } from './PoolCode'
+import type { BridgeBento, MultiRoute, RouteLeg } from '../../tines/index.js'
+import { HEXer } from '../HEXer.js'
+import { LiquidityProviders } from '../liquidity-providers/index.js'
+import { Bridge } from './Bridge.js'
+import { PoolCode } from './PoolCode.js'
 
 export class BentoBridgePoolCode extends PoolCode {
   bentoBoxAddress: string
@@ -102,7 +101,7 @@ export class BentoBridgePoolCode extends PoolCode {
     }
   }
 
-  getSwapCodeForRouteProcessor2(
+  override getSwapCodeForRouteProcessor2(
     leg: RouteLeg,
     _route: MultiRoute,
     to: string,
