@@ -1,9 +1,8 @@
-import { ChainId } from 'sushi/chain'
-import { MultiRoute, RouteLeg, RouteStatus, RToken } from '@sushiswap/tines'
 import { Hex } from 'viem'
-
-import { HEXer } from './HEXer'
-import { PoolCode } from './pools/PoolCode'
+import { ChainId } from '../chain/index.js'
+import { MultiRoute, RToken, RouteLeg, RouteStatus } from '../tines/index.js'
+import { HEXer } from './HEXer.js'
+import { PoolCode } from './pool-codes/PoolCode.js'
 
 export enum TokenType {
   NATIVE = 'NATIVE',
@@ -28,7 +27,7 @@ export function getTokenType(token: RToken): TokenType {
 
 export enum RouterLiquiditySource {
   Sender = 'Sender', // msg.sender
-  Self = 'Self', // already aboard
+  XSwap = 'XSwap',
 }
 
 export class TinesToRouteProcessor2 {
@@ -82,7 +81,7 @@ export class TinesToRouteProcessor2 {
           res += this.processNativeCode(token, route, toAddress)
         else
           res += this.processERC20Code(
-            source === RouterLiquiditySource.Self,
+            source === RouterLiquiditySource.XSwap,
             token,
             route,
             toAddress,
@@ -164,7 +163,7 @@ export class TinesToRouteProcessor2 {
     const hex = new HEXer()
       .uint8(4) // processOnePool commandCode
       .address(token.address)
-      .hexData(this.swapCode(outputLegs[0], route, toAddress))
+      .hexData(this.swapCode(outputLegs[0]!, route, toAddress))
     return hex.toString()
   }
 
@@ -206,7 +205,7 @@ export class TinesToRouteProcessor2 {
     if (outputDistribution.length === 0) {
       outAddress = toAddress
     } else if (outputDistribution.length === 1) {
-      outAddress = this.getPoolCode(outputDistribution[0]).getStartPoint(
+      outAddress = this.getPoolCode(outputDistribution[0]!).getStartPoint(
         l,
         route,
       )
@@ -224,11 +223,11 @@ export class TinesToRouteProcessor2 {
       this.tokenOutputLegs.get(token.tokenId as string) || []
     if (outputDistribution.length !== 1) return false
 
-    const startPoint = this.getPoolCode(outputDistribution[0]).getStartPoint(
-      outputDistribution[0],
+    const startPoint = this.getPoolCode(outputDistribution[0]!).getStartPoint(
+      outputDistribution[0]!,
       route,
     )
-    return startPoint === outputDistribution[0].poolAddress
+    return startPoint === outputDistribution[0]!.poolAddress
   }
 
   getPoolCode(l: RouteLeg): PoolCode {
