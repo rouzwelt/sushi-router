@@ -2,10 +2,10 @@ import type {
   ConstantProductRPool,
   MultiRoute,
   RouteLeg,
-} from '../../tines/index.js'
-import { HEXer } from '../HEXer.js'
-import { LiquidityProviders } from '../liquidity-providers/index.js'
-import { PoolCode } from './PoolCode.js'
+} from '../../tines'
+import { HEXer } from '../HEXer'
+import { LiquidityProviders } from '../liquidity-providers'
+import { PoolCode } from './PoolCode'
 
 export class ConstantProductPoolCode extends PoolCode {
   constructor(
