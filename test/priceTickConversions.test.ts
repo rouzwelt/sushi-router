@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { Price, Token } from '../../../currency/index.js'
-import { priceToClosestTick, tickToPrice } from './priceTickConversions.js'
+import { Price, Token } from '../src/currency/index.js'
+import { priceToClosestTick, tickToPrice } from '../src/pool/sushiswap-v3/utils/priceTickConversions.js'
 
 describe('priceTickConversions', () => {
   /**

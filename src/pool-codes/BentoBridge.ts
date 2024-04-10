@@ -1,4 +1,4 @@
-import type { BridgeBento, MultiRoute, RouteLeg } from '../../tines'
+import type { BridgeBento, MultiRoute, RouteLeg } from './../tines'
 import { HEXer } from '../HEXer'
 import { LiquidityProviders } from '../liquidity-providers'
 import { Bridge } from './Bridge'

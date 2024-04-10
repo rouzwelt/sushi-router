@@ -1,14 +1,10 @@
 import { PublicClient } from 'viem'
-import { ChainId } from '../../chain'
+import { ChainId } from './../chain'
 import { LiquidityProviders } from './LiquidityProvider'
 import { UniswapV3BaseProvider } from './UniswapV3Base'
 
 export class SushiSwapV3Provider extends UniswapV3BaseProvider {
-  constructor(
-    chainId: ChainId,
-    web3Client: PublicClient,
-    // databaseClient?: PrismaClient,
-  ) {
+  constructor(chainId: ChainId, web3Client: PublicClient) {
     const factory = {
       [ChainId.ARBITRUM_NOVA]: '0xaa26771d497814E81D305c511Efbb3ceD90BF5bd',
       [ChainId.ARBITRUM]: '0x1af415a1EbA07a4986a52B6f2e7dE7003D82231e',

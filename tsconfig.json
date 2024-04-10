@@ -1,19 +1,26 @@
 {
   // "extends": "@sushiswap/typescript-config/node18.json",
   "include": ["src"],
+  "exclude": ["test"],
   "compilerOptions": {
-    "lib": ["es2021"],
-    "module": "commonjs",
-    "target": "es2021",
+    "lib": ["es2023"],
+    "module": "node16",
+    "target": "es2022",
+
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "moduleResolution": "node16",
+    // "lib": ["es2021"],
+    // "module": "commonjs",
+    // "target": "es2021",
     "outDir": "./dist",
     // "outFile": "./dist/index",
     "rootDir": "src",
-    "skipLibCheck": true,
     "declaration": true,
     // "declarationMap": true,
     "sourceMap": false,
-    "strict": false,
-    "esModuleInterop": true,
     "emitDeclarationOnly": false,
+    "resolveJsonModule": true
   }
 }

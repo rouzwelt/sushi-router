@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { TickMath } from '../utils/tickMath.js'
-import { Tick } from './Tick.js'
+import { TickMath } from '../src/pool/sushiswap-v3/utils/tickMath.js'
+import { Tick } from '../src/pool/sushiswap-v3/entities/Tick.js'
 
 describe('Tick', () => {
   describe('constructor', () => {

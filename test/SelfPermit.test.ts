@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { Token } from '../../../currency/index.js'
+import { Token } from '../src/currency/index.js'
 import {
   AllowedPermitArguments,
   SelfPermit,
   StandardPermitArguments,
-} from './SelfPermit.js'
+} from '../src/pool/sushiswap-v3/entities/SelfPermit.js'
 
 const token = new Token({
   chainId: 1,

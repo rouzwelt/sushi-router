@@ -5,39 +5,30 @@ import {
   getReservesAbi,
   getStableReservesAbi,
   totalsAbi,
-} from '../../abi'
-import { type ChainId } from '../../chain'
+} from './../abi'
+import { type ChainId } from './../chain'
 import {
   BENTOBOX_ADDRESS,
   BentoBoxChainId,
   TRIDENT_CONSTANT_POOL_FACTORY_ADDRESS,
   TRIDENT_STABLE_POOL_FACTORY_ADDRESS,
-} from '../../config'
-import { Token } from '../../currency'
+} from './../config'
+import { Token } from './../currency'
 import {
   BridgeBento,
   ConstantProductRPool,
   RToken,
   Rebase,
   StableSwapRPool,
-  convertTokenToBento,
-  toShareBI,
-} from '../../tines'
-import {
-  PoolResponse2,
-  filterOnDemandPools,
-  filterTopPools,
-  mapToken,
-} from '../lib/api'
+  convertTokenToBento, 
+} from './../tines'
+import { PoolResponse2, filterOnDemandPools } from '../lib/api'
 import {
   BentoBridgePoolCode,
   BentoPoolCode,
   type PoolCode,
 } from '../pool-codes'
-import {
-  TridentStaticPool,
-  TridentStaticPoolFetcher,
-} from '../static-pool-fetcher/Trident'
+import { TridentStaticPool, TridentStaticPoolFetcher } from '../static-pool-fetcher/Trident'
 import { LiquidityProvider, LiquidityProviders } from './LiquidityProvider'
 import { memoizer } from '../memoizer'
 
@@ -56,7 +47,7 @@ interface PoolInfo {
 
 export class TridentProvider extends LiquidityProvider {
   // Need to override for type narrowing
-  chainId: Extract<ChainId, BentoBoxChainId & TridentChainId>
+  // chainId: Extract<ChainId, BentoBoxChainId & TridentChainId>
 
   readonly TOP_POOL_SIZE = 155
   readonly TOP_POOL_LIQUIDITY_THRESHOLD = 1000
@@ -87,17 +78,9 @@ export class TridentProvider extends LiquidityProvider {
   blockListener?: () => void
   unwatchBlockNumber?: () => void
 
-  // databaseClient: PrismaClient | undefined
-
-  constructor(
-    chainId: Extract<ChainId, BentoBoxChainId & TridentChainId>,
-    web3Client: PublicClient,
-    // databaseClient?: PrismaClient,
-  ) {
+  constructor(chainId: ChainId, web3Client: PublicClient) {
     super(chainId, web3Client)
     this.chainId = chainId
-
-    // this.databaseClient = databaseClient
     if (
       !(chainId in this.bentoBox) ||
       !(chainId in this.constantProductPoolFactory) ||
@@ -900,7 +883,7 @@ export class TridentProvider extends LiquidityProvider {
         return undefined
       })
 
-    const [classicReserves, stableReserves, totals, balances] =
+      const [classicReserves, stableReserves, totals, balances] =
       await Promise.all([
         classicReservePromise,
         stableReservePromise,

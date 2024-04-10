@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { SushiSwapV3FeeAmount, TICK_SPACINGS } from '../../../config/index.js'
-import { Token } from '../../../currency/index.js'
-import { Percent } from '../../../math/index.js'
-import { encodeSqrtRatioX96 } from '../utils/encodeSqrtRatioX96.js'
-import { nearestUsableTick } from '../utils/nearestUsableTick.js'
-import { TickMath } from '../utils/tickMath.js'
-import { Position } from './Position.js'
-import { SushiSwapV3Pool } from './SushiSwapV3Pool.js'
+import { SushiSwapV3FeeAmount, TICK_SPACINGS } from '../src/config/index.js'
+import { Token } from '../src/currency/index.js'
+import { Percent } from '../src/math/index.js'
+import { encodeSqrtRatioX96 } from '../src/pool/sushiswap-v3/utils/encodeSqrtRatioX96.js'
+import { nearestUsableTick } from '../src/pool/sushiswap-v3/utils/nearestUsableTick.js'
+import { TickMath } from '../src/pool/sushiswap-v3/utils/tickMath.js'
+import { Position } from '../src/pool/sushiswap-v3/entities/Position.js'
+import { SushiSwapV3Pool } from '../src/pool/sushiswap-v3/entities/SushiSwapV3Pool.js'
 
 describe('Position', () => {
   const USDC = new Token({

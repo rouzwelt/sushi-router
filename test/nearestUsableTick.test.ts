@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { nearestUsableTick } from './nearestUsableTick.js'
-import { TickMath } from './tickMath.js'
+import { nearestUsableTick } from '../src/pool/sushiswap-v3/utils/nearestUsableTick.js'
+import { TickMath } from '../src/pool/sushiswap-v3/utils/tickMath.js'
 
 describe('#nearestUsableTick', () => {
   it('throws if tickSpacing is 0', () => {

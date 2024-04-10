@@ -1,14 +1,14 @@
 /// <reference lib="dom" />
 import { existsSync, writeFileSync } from 'fs'
 import path from 'path'
-import { fileURLToPath } from 'url'
-import { ChainId } from '../src/chain/constants.js'
-import { type Chain } from '../src/chain/index.js'
+// import { fileURLToPath } from 'url'
+import { ChainId } from '../src/chain/constants'
+import { type Chain } from '../src/chain'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+// const __filename = fileURLToPath(import.meta.url)
+// const __dirname = path.dirname(__filename)
 ;(async () => {
-  const file = path.resolve(__dirname, '../src/chain/generated.ts')
+  const file = path.resolve('./src/chain/generated.ts')
   if (!existsSync(file)) {
     const chains = await fetch('https://chainid.network/chains.json').then(
       (data) => data.json() as Promise<Chain[]>,

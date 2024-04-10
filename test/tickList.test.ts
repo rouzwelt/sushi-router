@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { Tick } from '../entities/Tick.js'
-import { TickList } from './tickList.js'
-import { TickMath } from './tickMath.js'
+import { Tick } from '../src/pool/sushiswap-v3/entities/Tick.js'
+import { TickList } from '../src/pool/sushiswap-v3/utils/tickList.js'
+import { TickMath } from '../src/pool/sushiswap-v3/utils/tickMath.js'
 
 describe('TickList', () => {
   let highTick: Tick

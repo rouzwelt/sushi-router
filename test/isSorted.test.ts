@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isSorted } from './isSorted.js'
+import { isSorted } from '../src/pool/sushiswap-v3/utils/isSorted.js'
 
 describe('#isSorted', () => {
   it('empty list', () => {

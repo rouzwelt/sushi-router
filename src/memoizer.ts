@@ -1,7 +1,7 @@
 import memoize from "memoize-fs";
 
 const serialize = (val: any) => {
-  const circRefColl = [];
+  const circRefColl: any[] = [];
     return JSON.stringify(val, function (name, value) {
         if (typeof value === 'function') {
             return; // ignore arguments and attributes of type function silently

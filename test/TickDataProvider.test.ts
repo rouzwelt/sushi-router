@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { NoTickDataProvider } from './TickDataProvider.js'
+import { NoTickDataProvider } from '../src/pool/sushiswap-v3/entities/TickDataProvider.js'
 
 describe('TickDataProvider', () => {
   describe('NoTickDataProvider', () => {

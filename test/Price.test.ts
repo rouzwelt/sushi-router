@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { Amount } from './Amount.js'
-import { Price } from './Price.js'
-import { Token } from './Token.js'
+import { Amount } from '../src/currency/Amount.js'
+import { Price } from '../src/currency/Price.js'
+import { Token } from '../src/currency/Token.js'
 
 describe('Price', () => {
   const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'

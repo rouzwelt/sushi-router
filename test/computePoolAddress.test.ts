@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { SushiSwapV3FeeAmount } from '../../../config/index.js'
-import { Token } from '../../../currency/index.js'
-import { computeSushiSwapV3PoolAddress } from './computePoolAddress.js'
+import { SushiSwapV3FeeAmount } from '../src/config/index.js'
+import { Token } from '../src/currency/index.js'
+import { computeSushiSwapV3PoolAddress } from '../src/pool/sushiswap-v3/utils/computePoolAddress.js'
 
 describe('#computePoolAddress', () => {
   const factoryAddress = '0x1111111111111111111111111111111111111111'

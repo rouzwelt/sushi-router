@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { PositionLibrary } from './position.js'
+import { PositionLibrary } from '../src/pool/sushiswap-v3/utils/position.js'
 
 describe('PositionLibrary', () => {
   describe('#getTokensOwed', () => {

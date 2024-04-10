@@ -6,7 +6,7 @@ import {
   getContract,
   parseAbi,
 } from 'viem'
-import { ChainId } from '../../chain'
+import { ChainId } from './../chain'
 import {
   DAI,
   FRAX,
@@ -15,10 +15,10 @@ import {
   USDT,
   WBTC,
   renBTC,
-} from '../../currency'
-import { Native, Token, Type } from '../../currency'
-import { RToken, createCurvePoolsForMultipool } from '../../tines'
-import { getCurrencyCombinations } from '../get-currency-combinations'
+} from './../currency'
+import { Native, Token, Type } from './../currency'
+import { RToken, createCurvePoolsForMultipool } from './../tines'
+import { getCurrencyCombinations } from '../getCurrencyCombinations'
 import { CurvePoolCode } from '../pool-codes/CurvePool'
 import { PoolCode } from '../pool-codes/PoolCode'
 import { LiquidityProvider, LiquidityProviders } from './LiquidityProvider'
@@ -282,7 +282,7 @@ export async function getAllSupportedCurvePools(
       result.set(poolAddress, CurvePoolType.Factory)
     }
   })
-  // @ts-ignore
+
   await Promise.all(promises)
   ;(CURVE_NON_FACTORY_POOLS[chainId] ?? []).forEach((pool) =>
     result.set(pool[0], pool[1]),
@@ -401,7 +401,15 @@ export class CurveProvider extends LiquidityProvider {
             ] as const,
           })),
       )
-      const newFoundPools = options?.memoize
+      const newFoundPools: ({
+          error?: undefined;
+          result: `0x${string}`;
+          status: "success";
+      } | {
+          error: Error;
+          result?: undefined;
+          status: "failure";
+      })[] = options?.memoize
         ? await multicallMemoize({
           multicallAddress: this.client.chain?.contracts?.multicall3?.address as '0x${string}',
           allowFailure: true,
@@ -429,7 +437,7 @@ export class CurveProvider extends LiquidityProvider {
           pool.status === 'success' ? currencyCombinations[i] : undefined,
         )
         .filter((c) => c !== undefined) as [Token, Token][]
-    };
+    }
     (CURVE_NON_FACTORY_POOLS[this.chainId] ?? []).forEach((pool) => {
       if (excludePools?.has(pool[0]) !== true)
         pools.set(pool[0], [pool[1], pool[2]])

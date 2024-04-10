@@ -1,21 +1,13 @@
 import { getCreate2Address } from '@ethersproject/address'
 import { add, getUnixTime } from 'date-fns'
 import { Address, Hex, PublicClient, encodePacked, keccak256 } from 'viem'
-import { getReservesAbi } from '../../abi'
-import { ChainId } from '../../chain'
-import {
-  ADDITIONAL_BASES,
-  BASES_TO_CHECK_TRADES_AGAINST,
-} from '../../config'
-import { Token } from '../../currency'
-import { ConstantProductRPool, RToken } from '../../tines'
-import { getCurrencyCombinations } from '../get-currency-combinations'
-import {
-  PoolResponse2,
-  filterOnDemandPools,
-  filterTopPools,
-  mapToken,
-} from '../lib/api'
+import { getReservesAbi } from './../abi'
+import { ChainId } from './../chain'
+import { ADDITIONAL_BASES, BASES_TO_CHECK_TRADES_AGAINST } from './../config'
+import { Token } from './../currency'
+import { ConstantProductRPool, RToken } from './../tines'
+import { getCurrencyCombinations } from '../getCurrencyCombinations'
+import { PoolResponse2, filterOnDemandPools } from '../lib/api'
 import { ConstantProductPoolCode, type PoolCode } from '../pool-codes'
 import { LiquidityProvider } from './LiquidityProvider'
 import { memoizer } from '../memoizer'
@@ -232,7 +224,7 @@ export abstract class UniswapV2BaseProvider extends LiquidityProvider {
     })
 
     const multicallMemoize = await memoizer.fn(this.client.multicall);
-    const reserves = options?.memoize
+    const reserves: any = options?.memoize
       ? await multicallMemoize({
         multicallAddress: this.client.chain?.contracts?.multicall3?.address as Address,
         allowFailure: true,

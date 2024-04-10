@@ -1,4 +1,4 @@
-import type { MultiRoute, RouteLeg, UniV3Pool } from '../../tines'
+import type { MultiRoute, RouteLeg, UniV3Pool } from './../tines'
 
 import { HEXer } from '../HEXer'
 import { LiquidityProviders } from '../liquidity-providers'
@@ -17,7 +17,6 @@ export class TridentCLPoolCode extends PoolCode {
     return PoolCode.RouteProcessorAddress
   }
 
-  // eslint-disable-next-line unused-imports/no-unused-vars, no-unused-vars, @typescript-eslint/no-unused-vars
   getSwapCodeForRouteProcessor(): string {
     return 'unsupported'
   }

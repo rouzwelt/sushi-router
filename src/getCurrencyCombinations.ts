@@ -1,11 +1,12 @@
 import flatMap from 'lodash.flatmap'
-import { ChainId } from '../chain'
+import { ChainId } from './chain'
 import {
   ADDITIONAL_BASES,
   BASES_TO_CHECK_TRADES_AGAINST,
   CUSTOM_BASES,
-} from '../config'
-import { Token, Type } from '../currency'
+} from './config'
+import { Token, Type } from './currency'
+import { EnosysTokens } from './liquidity-providers/Enosys'
 
 export function getCurrencyCombinations(
   chainId: ChainId,
@@ -101,4 +102,66 @@ export function getV3CurrencyCombinations(
       Boolean(tokens[0] && tokens[1]),
     )
     .filter(([t0, t1]) => t0.address !== t1.address)
+}
+
+
+export function getCurrencyCombinationsEnosys(
+  chainId: ChainId,
+  currencyA: Type,
+  currencyB: Type,
+) {
+  const [tokenA, tokenB] = chainId
+    ? [currencyA?.wrapped, currencyB?.wrapped]
+    : [undefined, undefined]
+
+  const common = EnosysTokens
+
+  const bases: Token[] = [...common]
+
+  const basePairs: [Token, Token][] = flatMap(bases, (base): [Token, Token][] =>
+    bases.map((otherBase) => [base, otherBase]),
+  )
+
+  if (!tokenA || !tokenB) {
+    return []
+  }
+
+  const combinations0: [Token, Token][] = [
+    // the direct pair
+    [tokenA, tokenB],
+    // token A against all bases
+    ...bases.map((base): [Token, Token] => [tokenA, base]),
+    // token B against all bases
+    ...bases.map((base): [Token, Token] => [tokenB, base]),
+    // each base against all bases
+    ...basePairs,
+  ]
+    .filter((tokens): tokens is [Token, Token] =>
+      Boolean(tokens[0] && tokens[1]),
+    )
+    .filter(([t0, t1]) => t0.address !== t1.address)
+    .filter(([tokenA, tokenB]) => {
+      if (!chainId) return true
+      const customBases = CUSTOM_BASES[chainId]
+
+      const customBasesA: Token[] | undefined = customBases?.[tokenA.address]
+      const customBasesB: Token[] | undefined = customBases?.[tokenB.address]
+
+      if (!customBasesA && !customBasesB) return true
+
+      if (customBasesA && !customBasesA.find((base) => tokenB.equals(base)))
+        return false
+      if (customBasesB && !customBasesB.find((base) => tokenA.equals(base)))
+        return false
+
+      return true
+    })
+
+  const combinationUniqueAndSorted: Map<string, [Token, Token]> = new Map()
+  combinations0.forEach(([t0, t1]) => {
+    const [s0, s1] = t0.sortsBefore(t1) ? [t0, t1] : [t1, t0]
+    const id = s0.address + s1.address
+    combinationUniqueAndSorted.set(id, [s0, s1])
+  })
+  return Array.from(combinationUniqueAndSorted.values())
 }

@@ -21,6 +21,7 @@
     "/dist"
   ],
   "scripts": {
+    "bb": "tsc",
     "build": "npm run pack && npm run typings",
     "typings": "tsc",
     "pack": "esbuild ./src/index.ts --bundle --outfile=./dist/index.js --external:viem --external:memoize-fs --external:sushi --format=cjs --platform=node --target=es2021",
@@ -35,6 +36,8 @@
     "@ethersproject/address": "5.7.0",
     "@ethersproject/solidity": "5.7.0",
     "@uniswap/token-lists": "1.0.0-beta.33",
+    "@uniswap/v3-core": "1.0.1",
+    "@uniswap/v3-periphery": "1.4.4",
     "big.js": "6.1.1",
     "date-fns": "3.3.1",
     "decimal.js-light": "2.5.1",
@@ -56,6 +59,7 @@
     "@types/seedrandom": "3.0.1",
     "@wagmi/core": "2.6.9",
     "ts-node": "10.9.2",
-    "typescript": "5.2.2"
+    "typescript": "5.2.2",
+    "vitest": "0.34.6"
   }
 }

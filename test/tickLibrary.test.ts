@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { TickLibrary } from './tickLibrary.js'
+import { TickLibrary } from '../src/pool/sushiswap-v3/utils/tickLibrary.js'
 
 describe('TickLibrary', () => {
   describe('#getFeeGrowthInside', () => {

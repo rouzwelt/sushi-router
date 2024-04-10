@@ -1,11 +1,11 @@
 import { Address, PublicClient } from 'viem'
-import { erc20Abi, tickLensAbi } from '../../abi'
-import { ChainId } from '../../chain'
-import { SushiSwapV3FeeAmount, TICK_SPACINGS } from '../../config'
-import { Currency, Token, Type } from '../../currency'
-import { computeSushiSwapV3PoolAddress } from '../../pool'
-import { RToken, UniV3Pool } from '../../tines'
-import { getCurrencyCombinations } from '../get-currency-combinations'
+import { erc20Abi, tickLensAbi } from './../abi'
+import { ChainId } from './../chain'
+import { SushiSwapV3FeeAmount, TICK_SPACINGS } from './../config'
+import { Currency, Token, Type } from './../currency'
+import { computeSushiSwapV3PoolAddress } from './../pool'
+import { RToken, UniV3Pool } from './../tines'
+import { getCurrencyCombinations } from '../getCurrencyCombinations'
 import { type PoolCode, UniV3PoolCode } from '../pool-codes'
 import { LiquidityProvider } from './LiquidityProvider'
 import { memoizer } from '../memoizer'
@@ -14,14 +14,14 @@ interface StaticPool {
   address: Address
   token0: Token
   token1: Token
-  fee: FeeAmount
+  fee: SushiSwapV3FeeAmount
 }
 
 interface V3Pool {
   address: Address
   token0: Token
   token1: Token
-  fee: FeeAmount
+  fee: SushiSwapV3FeeAmount
   sqrtPriceX96: bigint
   activeTick: number
 }
@@ -81,7 +81,8 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
     options?: { blockNumber?: bigint, memoize?: boolean }
   ): Promise<void> {
     let staticPools = this.getStaticPools(t0, t1)
-    if (excludePools) staticPools = staticPools.filter((p) => !excludePools.has(p.address))
+    if (excludePools)
+      staticPools = staticPools.filter((p) => !excludePools.has(p.address))
 
     const multicallMemoize = await memoizer.fn(this.client.multicall);
     const slot0 = options?.memoize
@@ -350,6 +351,8 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
       ).flatMap((j) => ({
         chainId: this.chainId,
         address: this.tickLens[
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           this.chainId as keyof typeof this.tickLens
         ] as Address,
         args: [pool.address, j] as const,
@@ -382,7 +385,7 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
       ])
 
     const ticks: NonNullable<(typeof tickResults)[number]['result']>[] = []
-    tickResults.forEach((t, i) => {
+    tickResults.forEach((t: any, i: any) => {
       const index = wordList[i]!.index
       ticks[index] = (ticks[index] || []).concat(t.result || [])
     })
@@ -405,10 +408,10 @@ export abstract class UniswapV3BaseProvider extends LiquidityProvider {
       )
         return
 
-      const poolTicks = ticks[i]!.map((tick) => ({
+      const poolTicks = ticks[i]!.map((tick: any) => ({
         index: tick.tick,
         DLiquidity: tick.liquidityNet,
-      })).sort((a, b) => a.index - b.index)
+      })).sort((a: any, b: any) => a.index - b.index)
 
       const lowerUnknownTick =
         minIndexes[i]! * TICK_SPACINGS[pool.fee] * 256 - TICK_SPACINGS[pool.fee]

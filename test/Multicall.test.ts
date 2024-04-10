@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Multicall } from './Multicall.js'
+import { Multicall } from '../src/pool/sushiswap-v3/entities/Multicall.js'
 
 describe('Multicall', () => {
   describe('#encodeMulticall', () => {

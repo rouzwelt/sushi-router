@@ -1,6 +1,6 @@
 import { PublicClient } from 'viem'
-import { ChainId, chainShortName } from '../../chain'
-import type { Token } from '../../currency'
+import { ChainId, chainShortName } from './../chain'
+import type { Token } from './../currency'
 import type { PoolCode } from '../pool-codes'
 
 export enum LiquidityProviders {

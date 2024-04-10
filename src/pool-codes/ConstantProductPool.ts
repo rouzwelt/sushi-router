@@ -2,7 +2,7 @@ import type {
   ConstantProductRPool,
   MultiRoute,
   RouteLeg,
-} from '../../tines'
+} from './../tines'
 import { HEXer } from '../HEXer'
 import { LiquidityProviders } from '../liquidity-providers'
 import { PoolCode } from './PoolCode'

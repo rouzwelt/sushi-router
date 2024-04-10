@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { Token } from '../../../currency/index.js'
-import { Percent } from '../../../math/index.js'
-import { Payments } from './Payments.js'
+import { Token } from '../src/currency/index.js'
+import { Percent } from '../src/math/index.js'
+import { Payments } from '../src/pool/sushiswap-v3/entities/Payments.js'
 
 const recipient = '0x0000000000000000000000000000000000000003'
 const amount = 123n

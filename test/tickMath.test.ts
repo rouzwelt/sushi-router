@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { TickMath } from './tickMath.js'
+import { TickMath } from '../src/pool/sushiswap-v3/utils/tickMath.js'
 
 describe('TickMath', () => {
   describe('#MIN_TICK', () => {

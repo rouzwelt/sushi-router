@@ -1,10 +1,10 @@
-import { ChainId } from '../../chain'
+import { ChainId } from './../chain'
 import {
   CurveMultitokenPool,
   CurvePool,
   MultiRoute,
   RouteLeg,
-} from '../../tines'
+} from './../tines'
 import { HEXer } from '../HEXer'
 import {
   CURVE_NON_FACTORY_POOLS,

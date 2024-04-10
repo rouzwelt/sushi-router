@@ -3,6 +3,7 @@ export const ChainId = {
   // ROPSTEN: 3,
   // RINKEBY: 4,
   // GÖRLI: 5,
+  FLARE: 14,
   // KOVAN: 42,
   POLYGON: 137,
   POLYGON_TESTNET: 80001,
@@ -130,5 +131,6 @@ export const ChainKey = {
   [ChainId.ZETACHAIN]: 'zetachain',
   [ChainId.CRONOS]: 'cronos',
   [ChainId.BLAST]: 'blast',
+  [ChainId.FLARE]: 'flare'
 } as const
 export type ChainKey = (typeof ChainKey)[keyof typeof ChainKey]

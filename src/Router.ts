@@ -1,7 +1,7 @@
 import { Address, Hex } from 'viem'
-import { ChainId } from '../chain'
-import { Native, WNATIVE, WNATIVE_ADDRESS } from '../currency'
-import { Token, Type } from '../currency'
+import { ChainId } from './chain'
+import { Native, WNATIVE, WNATIVE_ADDRESS } from './currency'
+import { Token, Type } from './currency'
 import {
   MultiRoute,
   NetworkInfo,
@@ -12,16 +12,16 @@ import {
   findMultiRouteExactIn,
   getBentoChainId,
   getBigInt,
-} from '../tines'
+} from './tines'
 import { LiquidityProviders } from './liquidity-providers'
 import { PoolCode } from './pool-codes'
 import {
   PermitData,
   RouterLiquiditySource,
   getRouteProcessor2Code,
-} from './tines-to-route-processor-2'
-import { getRouteProcessor4Code } from './tines-to-route-processor-4'
-import { getRouteProcessorCode } from './tines-to-route-processor'
+} from './TinesToRouteProcessor2'
+import { getRouteProcessor4Code } from './TinesToRouteProcessor4'
+import { getRouteProcessorCode } from './TinesToRouteProcessor'
 
 function TokenToRToken(t: Type): RToken {
   if (t instanceof Token) return t as RToken

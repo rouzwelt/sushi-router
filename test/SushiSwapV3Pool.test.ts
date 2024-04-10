@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { SushiSwapV3FeeAmount, TICK_SPACINGS } from '../../../config/index.js'
+import { SushiSwapV3FeeAmount, TICK_SPACINGS } from '../src/config/index.js'
 import {
   Amount as CurrencyAmount,
   Token,
   WETH9,
-} from '../../../currency/index.js'
-import { encodeSqrtRatioX96 } from '../utils/encodeSqrtRatioX96.js'
-import { nearestUsableTick } from '../utils/nearestUsableTick.js'
-import { TickMath } from '../utils/tickMath.js'
-import { SushiSwapV3Pool } from './SushiSwapV3Pool.js'
+} from '../src/currency/index.js'
+import { encodeSqrtRatioX96 } from '../src/pool/sushiswap-v3/utils/encodeSqrtRatioX96.js'
+import { nearestUsableTick } from '../src/pool/sushiswap-v3/utils/nearestUsableTick.js'
+import { TickMath } from '../src/pool/sushiswap-v3/utils/tickMath.js'
+import { SushiSwapV3Pool } from '../src/pool/sushiswap-v3/entities/SushiSwapV3Pool.js'
 
 const ONE_ETHER = 10n ** 18n
 

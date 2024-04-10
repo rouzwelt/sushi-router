@@ -1,6 +1,6 @@
 import { Hex } from 'viem'
-import { ChainId } from '../chain'
-import { MultiRoute, RToken, RouteLeg, RouteStatus } from '../tines'
+import { ChainId } from './chain'
+import { MultiRoute, RToken, RouteLeg, RouteStatus } from './tines'
 import { PoolCode } from './pool-codes/PoolCode'
 import {
   PermitData,
@@ -8,7 +8,7 @@ import {
   TinesToRouteProcessor2,
   TokenType,
   getTokenType,
-} from './tines-to-route-processor-2'
+} from './TinesToRouteProcessor2'
 
 class TinesToRouteProcessor4 extends TinesToRouteProcessor2 {
   // constructor(

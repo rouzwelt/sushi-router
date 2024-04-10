@@ -34,6 +34,7 @@ import {
   fantomTestnet,
   // fantomTestnet,
   // filecoinTestnet,
+  flare as _flare,
   foundry,
   fuse as _fuse, // missing multicall
   gnosis,
@@ -92,6 +93,7 @@ export {
   fantom,
   // fantomTestnet,
   // filecoinTestnet,
+  flare,
   foundry,
   gnosis,
   goerli,
@@ -136,6 +138,16 @@ const haqq = {
     multicall3: {
       address: '0xfe2D04A5018AC1B366F599A13BF4e0C760b2aE6b',
       blockCreated: 6589598,
+    },
+  },
+} as const
+
+const flare = {
+  ..._flare,
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 3002461,
     },
   },
 } as const
@@ -569,6 +581,7 @@ export const publicTransports = {
   [ChainId.BLAST]: http(
     `https://lb.drpc.org/ogrpc?network=blast&dkey=${drpcId}`,
   ),
+  [ChainId.FLARE]: http(flare.rpcUrls.default.http[0]),
   /* Testnets */ // TODO: add testnet transports
   [ChainId.ARBITRUM_TESTNET]: http('https://sepolia-rollup.arbitrum.io/rpc'),
   [ChainId.AVALANCHE_TESTNET]: http(
@@ -599,7 +612,7 @@ export const publicChains = [
   harmonyOne,
   kava,
   metis,
-  optimism,
+  optimism as unknown as Omit<typeof mainnet, 'id'> & { id: 10 },
   moonbeam,
   moonriver,
   polygon,
@@ -611,12 +624,13 @@ export const publicChains = [
   palm,
   okc,
   heco,
-  zkSync,
+  zkSync as unknown as Omit<typeof mainnet, 'id'> & { id: 324 },
   linea,
-  base,
+  base as unknown as Omit<typeof mainnet, 'id'> & { id: 8453 },
   scroll,
   filecoin,
   zetachain,
+  flare,
 
   /* Testnets */
   arbitrumSepolia,
@@ -701,7 +715,7 @@ export const publicClientConfig = {
     transport: publicTransports[ChainId.MOONRIVER],
   },
   [ChainId.OPTIMISM]: {
-    chain: optimism,
+    chain: optimism as unknown as typeof mainnet & { id: 10 },
     transport: publicTransports[ChainId.OPTIMISM],
   },
   [ChainId.POLYGON]: {
@@ -741,7 +755,7 @@ export const publicClientConfig = {
     transport: publicTransports[ChainId.HECO],
   },
   [ChainId.ZKSYNC_ERA]: {
-    chain: zkSync,
+    chain: zkSync as unknown as typeof mainnet & { id: 324 },
     transport: publicTransports[ChainId.ZKSYNC_ERA],
   },
   [ChainId.LINEA]: {
@@ -749,7 +763,7 @@ export const publicClientConfig = {
     transport: publicTransports[ChainId.LINEA],
   },
   [ChainId.BASE]: {
-    chain: base,
+    chain: base as unknown as typeof mainnet & { id: 8453 },
     transport: publicTransports[ChainId.BASE],
   },
   [ChainId.SCROLL]: {
@@ -771,6 +785,10 @@ export const publicClientConfig = {
   [ChainId.BLAST]: {
     chain: blast,
     transport: publicTransports[ChainId.BLAST],
+  },
+  [ChainId.FLARE]: {
+    chain: flare,
+    transport: publicTransports[ChainId.FLARE],
   },
   /* Testnets */
   [ChainId.ARBITRUM_TESTNET]: {

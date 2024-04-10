@@ -1,24 +1,15 @@
-import { getCreate2Address } from '@ethersproject/address'
 import { add, getUnixTime } from 'date-fns'
-import { Address, Hex, PublicClient, encodePacked, keccak256 } from 'viem'
-import { getReservesAbi } from '../../abi'
-import { ChainId } from '../../chain'
-import {
-  ADDITIONAL_BASES,
-  BASES_TO_CHECK_TRADES_AGAINST,
-} from '../../config'
-import { Token } from '../../currency'
-import { ConstantProductRPool, RToken } from '../../tines'
-import { getCurrencyCombinations } from '../get-currency-combinations'
-import {
-  PoolResponse2,
-  filterOnDemandPools,
-  filterTopPools,
-  mapToken,
-} from '../lib/api'
+import { Address, Hex, PublicClient } from 'viem'
+import { getReservesAbi } from './../abi'
+import { ChainId } from '../chain'
+import { Token } from './../currency'
+import { ConstantProductRPool, RToken } from './../tines'
+import { getCurrencyCombinationsEnosys } from '../getCurrencyCombinations'
+import { PoolResponse2, filterOnDemandPools } from '../lib/api'
 import { ConstantProductPoolCode, type PoolCode } from '../pool-codes'
-import { LiquidityProvider } from './LiquidityProvider'
+import { LiquidityProvider, LiquidityProviders } from './LiquidityProvider'
 import { memoizer } from '../memoizer'
+import { ENOSYS_APS, ENOSYS_BNZ, ENOSYS_EQNT, ENOSYS_HLN, USDT, WETH9, WNATIVE } from '../currency'
 
 interface PoolInfo {
   poolCode: PoolCode
@@ -142,9 +133,9 @@ export class Enosys extends LiquidityProvider {
 
     const multicallMemoize = await memoizer.fn(this.client.multicall);
 
-    const reserves = options?.memoize 
+    const reserves: any = options?.memoize 
       ? await multicallMemoize({
-        multicallAddress: "0xcA11bde05977b3631167028862bE2a173976CA11",
+        multicallAddress: this.client.chain?.contracts?.multicall3?.address as Address,
         allowFailure: true,
         blockNumber: options?.blockNumber,
         contracts: poolCodesToCreate.map(
@@ -159,7 +150,7 @@ export class Enosys extends LiquidityProvider {
         }
       )
       : await this.client.multicall({
-        multicallAddress: "0xcA11bde05977b3631167028862bE2a173976CA11",
+        multicallAddress: this.client.chain?.contracts?.multicall3?.address as Address,
         allowFailure: true,
         blockNumber: options?.blockNumber,
         contracts: poolCodesToCreate.map(
@@ -217,8 +208,7 @@ export class Enosys extends LiquidityProvider {
         fee: this.fee,
       };
       else return null
-    }).filter(v => v !== null)
-    // return pools
+    }).filter(v => v !== null) as StaticPool[]
   }
 
   startFetchPoolsData() {
@@ -259,7 +249,7 @@ export class Enosys extends LiquidityProvider {
   }
 }
 
-function getEnosysPoolAddress(t1: Token, t2: Token): string {
+function getEnosysPoolAddress(t1: Token, t2: Token): string | undefined {
   for (let i = 0; i < EnosysPools.length; i++) {
     if (
       (
@@ -274,64 +264,14 @@ function getEnosysPoolAddress(t1: Token, t2: Token): string {
   return; 
 }
 
-export const WFLR = new Token({
-  chainId: 14,
-  address: "0x1D80c49BbBCd1C0911346656B529DF9E5c2F783d",
-  decimals: 18,
-  symbol: "WFLR",
-  name: "Wrapped Flare"
-});
-
 export const EnosysTokens = [
-  new Token({
-    chainId: 14,
-    address: "0x1D80c49BbBCd1C0911346656B529DF9E5c2F783d",
-    decimals: 18,
-    symbol: "WFLR",
-    name: "Wrapped Flare"
-  }),
-  new Token({
-    chainId: 14,
-    address: "0x96B41289D90444B8adD57e6F265DB5aE8651DF29",
-    decimals: 6,
-    symbol: "eUSDT",
-    name: "USD Teter"
-  }),
-  new Token({
-    chainId: 14,
-    address: "0xfD3449E8Ee31117a848D41Ee20F497a9bCb53164",
-    decimals: 18,
-    symbol: "BNZ",
-    name: "BonezCoin"
-  }),
-  new Token({
-    chainId: 14,
-    address: "0x60fDC7B744E886e96Aa0DEf5f69eE440dB9d8c77",
-    decimals: 18,
-    symbol: "eQNT",
-    name: "EnosysQuant"
-  }),
-  new Token({
-    chainId: 14,
-    address: "0x140D8d3649Ec605CF69018C627fB44cCC76eC89f",
-    decimals: 18,
-    symbol: "HLN",
-    name: "Helion"
-  }),
-  new Token({
-    chainId: 14,
-    address: "0xff56eb5b1a7faa972291117e5e9565da29bc808d",
-    decimals: 18,
-    symbol: "APS",
-    name: "Apsis"
-  }),
-  new Token({
-    chainId: 14,
-    address: "0xa76dcddce60a442d69bac7158f3660f50921b122",
-    decimals: 18,
-    symbol: "eETH",
-    name: "Enosys ETH"
-  }),
+  WNATIVE[ChainId.FLARE],
+  USDT[ChainId.FLARE],
+  WETH9[ChainId.FLARE],
+  ENOSYS_BNZ,
+  ENOSYS_EQNT,
+  ENOSYS_HLN,
+  ENOSYS_APS,
 ]
 
 export const EnosysPools = [

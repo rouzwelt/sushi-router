@@ -3,15 +3,15 @@ import {
   tridentGetPoolsAbi,
   tridentPoolsCountAbi,
   tridentSwapFeeAbi,
-} from '../../abi'
-import { ChainId } from '../../chain'
+} from './../abi'
+import { ChainId } from './../chain'
 import {
   TRIDENT_CONSTANT_POOL_FACTORY_ADDRESS,
   TRIDENT_STABLE_POOL_FACTORY_ADDRESS,
   TridentChainId,
-} from '../../config'
-import { Currency, Token } from '../../currency'
-import { getCurrencyCombinations } from '../get-currency-combinations'
+} from './../config'
+import { Currency, Token } from './../currency'
+import { getCurrencyCombinations } from '../getCurrencyCombinations'
 import { memoizer } from '../memoizer'
 
 
@@ -79,7 +79,15 @@ export class TridentStaticPoolFetcher {
               args: el as [Address, Address],
             }) as const,
         ),
-      }) as any
+      }) as ({
+            error?: undefined;
+            result: bigint;
+            status: "success";
+        } | {
+            error: Error;
+            result?: undefined;
+            status: "failure";
+        })[]
       : await client.multicall({
         multicallAddress: client.chain?.contracts?.multicall3?.address as Address,
         allowFailure: true,
@@ -141,7 +149,15 @@ export class TridentStaticPoolFetcher {
               args,
             }) as const,
         ),
-      }) as any
+      }) as ({
+            error: Error;
+            result?: undefined;
+            status: "failure";
+        } | {
+            error?: undefined;
+            result: readonly `0x${string}`[];
+            status: "success";
+        })[]
       : await client.multicall({
         multicallAddress: client.chain?.contracts?.multicall3?.address as Address,
         allowFailure: true,

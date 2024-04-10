@@ -58,6 +58,28 @@ export default [
     shortName: 'oeth',
   },
   {
+    chainId: 14,
+    explorers: [
+      {
+        name: "blockscout",
+        url: "https://flare-explorer.flare.network",
+        standard: "EIP3091"
+      },
+      {
+        name: "flarescan",
+        url: "https://mainnet.flarescan.com",
+        standard: "EIP3091"
+      }
+    ],
+    nativeCurrency: {
+      name: "Flare",
+      symbol: "FLR",
+      decimals: 18
+    },
+    name: "Flare Mainnet",
+    shortName: "flr"
+  },
+  {
     chainId: 25,
     explorers: [
       {
