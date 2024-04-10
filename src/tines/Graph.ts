@@ -1,13 +1,13 @@
 import { Address } from 'viem'
-import { PoolType, RPool, RToken, setTokenId } from './RPool.js'
-import { StableSwapRPool } from './StableSwapPool.js'
+import { PoolType, RPool, RToken, setTokenId } from './RPool'
+import { StableSwapRPool } from './StableSwapPool'
 import {
   ASSERT,
   DEBUG,
   closeValues,
   fastArrayMerge,
   getBigInt,
-} from './Utils.js'
+} from './Utils'
 
 const ROUTER_DISTRIBUTION_PORTION = 65535
 
@@ -787,7 +787,7 @@ export class Graph {
     // TODO: This should be removed, this pacakge will not be installable on a client while this remains.
     const fs = require("fs");
     fs.writeFileSync(
-      "D:/Info/Notes/GraphVisualization/data.js",
+      "D:/Info/Notes/GraphVisualization/data",
       nodes + edges + data
     );
   }*/

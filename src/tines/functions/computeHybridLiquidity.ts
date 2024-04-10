@@ -1,5 +1,5 @@
-import { abs } from '../../math/index.js'
-import { A_PRECISION } from '../constants/index.js'
+import { abs } from '../../math'
+import { A_PRECISION } from '../constants'
 
 export function computeHybridLiquidity(
   r0: bigint,

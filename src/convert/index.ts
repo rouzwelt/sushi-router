@@ -1,1 +1,1 @@
-export { toHex } from './to-hex.js'
+export { toHex } from './to-hex'

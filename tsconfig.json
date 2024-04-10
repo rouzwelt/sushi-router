@@ -6,21 +6,16 @@
     "lib": ["es2023"],
     "module": "node16",
     "target": "es2022",
-
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "moduleResolution": "node16",
-    // "lib": ["es2021"],
-    // "module": "commonjs",
-    // "target": "es2021",
     "outDir": "./dist",
-    // "outFile": "./dist/index",
     "rootDir": "src",
     "declaration": true,
-    // "declarationMap": true,
     "sourceMap": false,
     "emitDeclarationOnly": false,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    // "declarationMap": true,
   }
 }

@@ -1,9 +1,10 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 
 //import { bigint } from '@ethersproject/bignumber'
 import { Address } from 'viem'
-import { PoolType, RPool, RToken } from './RPool.js'
-import { getBigInt } from './Utils.js'
+import { PoolType, RPool, RToken } from './RPool'
+import { getBigInt } from './Utils'
 
 const ZERO = 0n
 const MIN_LIQUIDITY = 1000

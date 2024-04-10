@@ -94,9 +94,11 @@ export abstract class RPool {
   }
 
   // For multitoken pools
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   setCurrentFlow(_flow0: number, _flow1: number, _gas: number) {}
 
   // For multitoken pools
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   cleanTmpData() {}
 
   // precision of calcOutByIn

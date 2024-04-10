@@ -1,5 +1,5 @@
-import { ChainId } from './constants.js'
-import raw from './generated.js'
+import { ChainId } from './constants'
+import raw from './generated'
 
 const additional = [] as const
 

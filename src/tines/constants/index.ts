@@ -1,1 +1,1 @@
-export * from './hybrid.js'
+export * from './hybrid'

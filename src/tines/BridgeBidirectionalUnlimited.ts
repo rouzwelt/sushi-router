@@ -1,6 +1,6 @@
 import { Address } from 'viem'
 
-import { PoolType, RPool, RToken } from './RPool.js'
+import { PoolType, RPool, RToken } from './RPool'
 
 export class BridgeUnlimited extends RPool {
   constructor(
