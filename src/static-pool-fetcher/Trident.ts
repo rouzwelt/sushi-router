@@ -1,26 +1,21 @@
-import { Address, PublicClient } from 'viem'
-import {
-  tridentGetPoolsAbi,
-  tridentPoolsCountAbi,
-  tridentSwapFeeAbi,
-} from './../abi'
-import { ChainId } from './../chain'
+import { Address, PublicClient } from "viem";
+import { tridentGetPoolsAbi, tridentPoolsCountAbi, tridentSwapFeeAbi } from "./../abi";
+import { ChainId } from "./../chain";
 import {
   TRIDENT_CONSTANT_POOL_FACTORY_ADDRESS,
   TRIDENT_STABLE_POOL_FACTORY_ADDRESS,
   TridentChainId,
-} from './../config'
-import { Currency, Token } from './../currency'
-import { getCurrencyCombinations } from '../getCurrencyCombinations'
-import { memoizer } from '../memoizer'
-
+} from "./../config";
+import { Currency, Token } from "./../currency";
+import { getCurrencyCombinations } from "../getCurrencyCombinations";
+import { memoizer } from "../memoizer";
 
 export interface TridentStaticPool {
-  address: Address
-  token0: Token
-  token1: Token
-  type: 'STABLE_POOL' | 'CONSTANT_PRODUCT_POOL'
-  swapFee?: number
+  address: Address;
+  token0: Token;
+  token1: Token;
+  type: "STABLE_POOL" | "CONSTANT_PRODUCT_POOL";
+  swapFee?: number;
 }
 
 export class TridentStaticPoolFetcher {
@@ -29,14 +24,14 @@ export class TridentStaticPoolFetcher {
     chainId: ChainId,
     t1: Token,
     t2: Token,
-    options?: { blockNumber?: bigint, memoize?: boolean }
+    options?: { blockNumber?: bigint; memoize?: boolean },
   ): Promise<[TridentStaticPool[], TridentStaticPool[]]> {
     const pools = await Promise.all([
-      this.getPools(client, chainId, t1, t2, 'CONSTANT_PRODUCT_POOL'),
-      this.getPools(client, chainId, t1, t2, 'STABLE_POOL'),
-    ])
+      this.getPools(client, chainId, t1, t2, "CONSTANT_PRODUCT_POOL"),
+      this.getPools(client, chainId, t1, t2, "STABLE_POOL"),
+    ]);
 
-    return pools
+    return pools;
   }
 
   private static async getPools(
@@ -44,74 +39,64 @@ export class TridentStaticPoolFetcher {
     chainId: ChainId,
     t1: Token,
     t2: Token,
-    type: 'STABLE_POOL' | 'CONSTANT_PRODUCT_POOL',
-    options?: { blockNumber?: bigint, memoize?: boolean }
+    type: "STABLE_POOL" | "CONSTANT_PRODUCT_POOL",
+    options?: { blockNumber?: bigint; memoize?: boolean },
   ) {
-    const currencies = getCurrencyCombinations(chainId, t1, t2)
+    const currencies = getCurrencyCombinations(chainId, t1, t2);
 
-    const _pairsUnique = pairsUnique(currencies)
-    const _pairsUniqueAddr = _pairsUnique.map(([t0, t1]) => [
-      t0.address,
-      t1.address,
-    ])
+    const _pairsUnique = pairsUnique(currencies);
+    const _pairsUniqueAddr = _pairsUnique.map(([t0, t1]) => [t0.address, t1.address]);
     const factoryAddress =
-      type === 'STABLE_POOL'
-        ? (TRIDENT_STABLE_POOL_FACTORY_ADDRESS[
-            chainId as TridentChainId
-          ] as Address)
-        : (TRIDENT_CONSTANT_POOL_FACTORY_ADDRESS[
-            chainId as TridentChainId
-          ] as Address)
+      type === "STABLE_POOL"
+        ? (TRIDENT_STABLE_POOL_FACTORY_ADDRESS[chainId as TridentChainId] as Address)
+        : (TRIDENT_CONSTANT_POOL_FACTORY_ADDRESS[chainId as TridentChainId] as Address);
 
-    const multicallMemoize = await memoizer.fn(client.multicall); 
+    const multicallMemoize = await memoizer.fn(client.multicall);
     const callStatePoolsCount = options?.memoize
-      ? await multicallMemoize({
-        multicallAddress: client.chain?.contracts?.multicall3?.address as Address,
-        allowFailure: true,
-        blockNumber: options?.blockNumber,
-        contracts: _pairsUniqueAddr.map(
-          (el) =>
-            ({
-              chainId,
-              address: factoryAddress,
-              abi: tridentPoolsCountAbi,
-              functionName: 'poolsCount',
-              args: el as [Address, Address],
-            }) as const,
-        ),
-      }) as ({
-            error?: undefined;
-            result: bigint;
-            status: "success";
-        } | {
-            error: Error;
-            result?: undefined;
-            status: "failure";
-        })[]
+      ? ((await multicallMemoize({
+          multicallAddress: client.chain?.contracts?.multicall3?.address as Address,
+          allowFailure: true,
+          blockNumber: options?.blockNumber,
+          contracts: _pairsUniqueAddr.map(
+            (el) =>
+              ({
+                chainId,
+                address: factoryAddress,
+                abi: tridentPoolsCountAbi,
+                functionName: "poolsCount",
+                args: el as [Address, Address],
+              }) as const,
+          ),
+        })) as (
+          | {
+              error?: undefined;
+              result: bigint;
+              status: "success";
+            }
+          | {
+              error: Error;
+              result?: undefined;
+              status: "failure";
+            }
+        )[])
       : await client.multicall({
-        multicallAddress: client.chain?.contracts?.multicall3?.address as Address,
-        allowFailure: true,
-        blockNumber: options?.blockNumber,
-        contracts: _pairsUniqueAddr.map(
-          (el) =>
-            ({
-              chainId,
-              address: factoryAddress,
-              abi: tridentPoolsCountAbi,
-              functionName: 'poolsCount',
-              args: el as [Address, Address],
-            }) as const,
-        ),
-      })
+          multicallAddress: client.chain?.contracts?.multicall3?.address as Address,
+          allowFailure: true,
+          blockNumber: options?.blockNumber,
+          contracts: _pairsUniqueAddr.map(
+            (el) =>
+              ({
+                chainId,
+                address: factoryAddress,
+                abi: tridentPoolsCountAbi,
+                functionName: "poolsCount",
+                args: el as [Address, Address],
+              }) as const,
+          ),
+        });
 
     const callStatePoolsCountProcessed = callStatePoolsCount
-      ?.map(
-        (s, i) =>
-          [i, s?.result ? parseInt(s.result.toString()) : 0] as [
-            number,
-            number,
-          ],
-      )
+      ?.map((s, i) => [i, s?.result ? parseInt(s.result.toString()) : 0] as [number, number])
       .filter(([, length]) => length)
       .map(
         ([i, length]) =>
@@ -121,60 +106,57 @@ export class TridentStaticPoolFetcher {
             BigInt(0),
             BigInt(length),
           ] as const,
-      )
+      );
 
     const pairsUniqueProcessed = callStatePoolsCount
-      ?.map(
-        (s, i) =>
-          [i, s?.result ? parseInt(s.result.toString()) : 0] as [
-            number,
-            number,
-          ],
-      )
+      ?.map((s, i) => [i, s?.result ? parseInt(s.result.toString()) : 0] as [number, number])
       .filter(([, length]) => length)
-      .map(([i]) => [_pairsUnique[i]![0], _pairsUnique[i]![1]])
+      .map(([i]) => [_pairsUnique[i]![0], _pairsUnique[i]![1]]);
 
     const callStatePools = options?.memoize
-      ? await multicallMemoize({
-        multicallAddress: client.chain?.contracts?.multicall3?.address as Address,
-        allowFailure: true,
-        blockNumber: options?.blockNumber,
-        contracts: callStatePoolsCountProcessed.map(
-          (args) =>
-            ({
-              chainId,
-              address: factoryAddress,
-              abi: tridentGetPoolsAbi,
-              functionName: 'getPools',
-              args,
-            }) as const,
-        ),
-      }) as ({
-            error: Error;
-            result?: undefined;
-            status: "failure";
-        } | {
-            error?: undefined;
-            result: readonly `0x${string}`[];
-            status: "success";
-        })[]
+      ? ((await multicallMemoize({
+          multicallAddress: client.chain?.contracts?.multicall3?.address as Address,
+          allowFailure: true,
+          blockNumber: options?.blockNumber,
+          contracts: callStatePoolsCountProcessed.map(
+            (args) =>
+              ({
+                chainId,
+                address: factoryAddress,
+                abi: tridentGetPoolsAbi,
+                functionName: "getPools",
+                args,
+              }) as const,
+          ),
+        })) as (
+          | {
+              error: Error;
+              result?: undefined;
+              status: "failure";
+            }
+          | {
+              error?: undefined;
+              result: readonly `0x${string}`[];
+              status: "success";
+            }
+        )[])
       : await client.multicall({
-        multicallAddress: client.chain?.contracts?.multicall3?.address as Address,
-        allowFailure: true,
-        blockNumber: options?.blockNumber,
-        contracts: callStatePoolsCountProcessed.map(
-          (args) =>
-            ({
-              chainId,
-              address: factoryAddress,
-              abi: tridentGetPoolsAbi,
-              functionName: 'getPools',
-              args,
-            }) as const,
-        ),
-      })
+          multicallAddress: client.chain?.contracts?.multicall3?.address as Address,
+          allowFailure: true,
+          blockNumber: options?.blockNumber,
+          contracts: callStatePoolsCountProcessed.map(
+            (args) =>
+              ({
+                chainId,
+                address: factoryAddress,
+                abi: tridentGetPoolsAbi,
+                functionName: "getPools",
+                args,
+              }) as const,
+          ),
+        });
 
-    const pools: TridentStaticPool[] = []
+    const pools: TridentStaticPool[] = [];
     callStatePools.forEach((s, i) => {
       if (s?.result)
         s.result.forEach((address) =>
@@ -184,69 +166,67 @@ export class TridentStaticPoolFetcher {
             token1: pairsUniqueProcessed?.[i]![1] as Token,
             type,
           }),
-        )
-    })
+        );
+    });
 
-    const poolsAddresses = pools.map((p) => p.address)
+    const poolsAddresses = pools.map((p) => p.address);
 
     const fees = options?.memoize
-      ? await multicallMemoize({
-        multicallAddress: client.chain?.contracts?.multicall3?.address as Address,
-        allowFailure: true,
-        blockNumber: options?.blockNumber,
-        contracts: poolsAddresses.map(
-          (address) =>
-            ({
-              chainId,
-              address: address as Address,
-              abi: tridentSwapFeeAbi,
-              functionName: 'swapFee',
-            }) as const,
-        ),
-      }) as any
+      ? ((await multicallMemoize({
+          multicallAddress: client.chain?.contracts?.multicall3?.address as Address,
+          allowFailure: true,
+          blockNumber: options?.blockNumber,
+          contracts: poolsAddresses.map(
+            (address) =>
+              ({
+                chainId,
+                address: address as Address,
+                abi: tridentSwapFeeAbi,
+                functionName: "swapFee",
+              }) as const,
+          ),
+        })) as any)
       : await client.multicall({
-        multicallAddress: client.chain?.contracts?.multicall3?.address as Address,
-        allowFailure: true,
-        blockNumber: options?.blockNumber,
-        contracts: poolsAddresses.map(
-          (address) =>
-            ({
-              chainId,
-              address: address as Address,
-              abi: tridentSwapFeeAbi,
-              functionName: 'swapFee',
-            }) as const,
-        ),
-      })
-    const results: TridentStaticPool[] = []
+          multicallAddress: client.chain?.contracts?.multicall3?.address as Address,
+          allowFailure: true,
+          blockNumber: options?.blockNumber,
+          contracts: poolsAddresses.map(
+            (address) =>
+              ({
+                chainId,
+                address: address as Address,
+                abi: tridentSwapFeeAbi,
+                functionName: "swapFee",
+              }) as const,
+          ),
+        });
+    const results: TridentStaticPool[] = [];
 
     pools.forEach((p, i) => {
-      const fee = fees?.[i]?.result
+      const fee = fees?.[i]?.result;
 
-      if (!fee) return
+      if (!fee) return;
       results.push({
         ...p,
         swapFee: Number(fee) / 10_000,
-      })
-    })
-    return results
+      });
+    });
+    return results;
   }
 }
 
-const pairsUnique = (
-  currencies: [Currency | undefined, Currency | undefined][],
-) => {
-  const pairsMap = new Map<string, [Token, Token]>()
+const pairsUnique = (currencies: [Currency | undefined, Currency | undefined][]) => {
+  const pairsMap = new Map<string, [Token, Token]>();
   currencies.map(([c1, c2]) => {
     if (c1 && c2) {
-      const addr1 = c1.wrapped.address as string | undefined
-      const addr2 = c2.wrapped.address as string | undefined
+      const addr1 = c1.wrapped.address as string | undefined;
+      const addr2 = c2.wrapped.address as string | undefined;
       if (addr1 !== undefined && addr2 !== undefined) {
         if (addr1.toLowerCase() < addr2.toLowerCase())
-          pairsMap.set(addr1 + addr2, [c1, c2] as [Token, Token])
-        else pairsMap.set(addr2 + addr1, [c2, c1] as [Token, Token])
+          pairsMap.set(addr1 + addr2, [c1, c2] as [Token, Token]);
+        else pairsMap.set(addr2 + addr1, [c2, c1] as [Token, Token]);
       }
     }
-  })
-  return Array.from(pairsMap.values())
-}
+  });
+  return Array.from(pairsMap.values());
+};

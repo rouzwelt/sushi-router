@@ -1,25 +1,25 @@
 export const getReservesAbi = [
   {
     inputs: [],
-    name: 'getReserves',
+    name: "getReserves",
     outputs: [
       {
-        internalType: 'uint112',
-        name: '_reserve0',
-        type: 'uint112',
+        internalType: "uint112",
+        name: "_reserve0",
+        type: "uint112",
       },
       {
-        internalType: 'uint112',
-        name: '_reserve1',
-        type: 'uint112',
+        internalType: "uint112",
+        name: "_reserve1",
+        type: "uint112",
       },
       {
-        internalType: 'uint32',
-        name: '_blockTimestampLast',
-        type: 'uint32',
+        internalType: "uint32",
+        name: "_blockTimestampLast",
+        type: "uint32",
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
   },
-] as const
+] as const;

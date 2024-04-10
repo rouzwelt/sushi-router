@@ -1,13 +1,13 @@
-import { Address } from 'viem'
-import { PoolType, RPool, RToken } from './RPool'
+import { Address } from "viem";
+import { PoolType, RPool, RToken } from "./RPool";
 
-const BENTO_MINIMUM_SHARE_BALANCE = 1000 // Bento Shares
-const BRIDGING_GAS_COST = 60_000 // gas points
+const BENTO_MINIMUM_SHARE_BALANCE = 1000; // Bento Shares
+const BRIDGING_GAS_COST = 60_000; // gas points
 
 export class BridgeBento extends RPool {
-  elastic: number
-  base: number
-  freeLiquidity: number | undefined // Maximum number of tokens we can withdraw without harvest
+  elastic: number;
+  base: number;
+  freeLiquidity: number | undefined; // Maximum number of tokens we can withdraw without harvest
 
   // elastic is reserve0, base is reserve1
   constructor(
@@ -27,34 +27,32 @@ export class BridgeBento extends RPool {
       base,
       BENTO_MINIMUM_SHARE_BALANCE,
       BRIDGING_GAS_COST,
-    )
+    );
     if (address !== undefined) {
-      this.elastic = parseInt(elastic.toString())
-      this.base = parseInt(base.toString())
+      this.elastic = parseInt(elastic.toString());
+      this.base = parseInt(base.toString());
       this.freeLiquidity =
-        freeLiquidity === undefined
-          ? undefined
-          : parseInt(freeLiquidity.toString())
+        freeLiquidity === undefined ? undefined : parseInt(freeLiquidity.toString());
     } else {
       // for deserialization
-      this.elastic = 0
-      this.base = 0
+      this.elastic = 0;
+      this.base = 0;
     }
   }
 
   override uniqueID(): string {
-    return `${this.address}_${this.token0.symbol}_bento_bridge`
+    return `${this.address}_${this.token0.symbol}_bento_bridge`;
   }
 
   override updateReserves(elastic: bigint, base: bigint) {
-    this.reserve0 = elastic
-    this.elastic = parseInt(elastic.toString())
-    this.reserve1 = base
-    this.base = parseInt(base.toString())
+    this.reserve0 = elastic;
+    this.elastic = parseInt(elastic.toString());
+    this.reserve1 = base;
+    this.base = parseInt(base.toString());
   }
 
   override poolType(): PoolType {
-    return PoolType.Bridge
+    return PoolType.Bridge;
   }
 
   // direction == true -> deposit: calcs output shares by input amounts
@@ -64,78 +62,71 @@ export class BridgeBento extends RPool {
     direction: boolean,
     throwIfOutOfLiquidity = true,
   ): { out: number; gasSpent: number } {
-    let out
+    let out;
     if (direction === true) {
       if (this.elastic === 0) {
-        out = amountIn
+        out = amountIn;
       } else {
-        out = (amountIn * this.base) / this.elastic
+        out = (amountIn * this.base) / this.elastic;
       }
     } else {
       if (this.base === 0) {
-        out = amountIn
+        out = amountIn;
       } else {
-        out = (amountIn * this.elastic) / this.base
+        out = (amountIn * this.elastic) / this.base;
       }
-      if (
-        throwIfOutOfLiquidity &&
-        this.freeLiquidity !== undefined &&
-        out > this.freeLiquidity
-      )
-        throw new Error('OutOfLiquidity BridgeBento')
+      if (throwIfOutOfLiquidity && this.freeLiquidity !== undefined && out > this.freeLiquidity)
+        throw new Error("OutOfLiquidity BridgeBento");
     }
-    return { out, gasSpent: this.swapGasCost }
+    return { out, gasSpent: this.swapGasCost };
   }
 
   override calcOutByInReal(amountIn: number, direction: boolean): number {
-    return Math.floor(this.calcOutByIn(amountIn, direction, false).out)
+    return Math.floor(this.calcOutByIn(amountIn, direction, false).out);
   }
 
-  calcInByOut(
-    amountOut: number,
-    direction: boolean,
-  ): { inp: number; gasSpent: number } {
-    let inp
+  calcInByOut(amountOut: number, direction: boolean): { inp: number; gasSpent: number } {
+    let inp;
     if (direction === true) {
       if (this.elastic === 0) {
-        inp = amountOut
+        inp = amountOut;
       } else {
         if (this.base === 0) {
-          inp = Number.POSITIVE_INFINITY
+          inp = Number.POSITIVE_INFINITY;
         } else {
-          inp = (amountOut * this.elastic) / this.base
+          inp = (amountOut * this.elastic) / this.base;
         }
       }
     } else {
       if (this.freeLiquidity !== undefined && amountOut > this.freeLiquidity)
-        inp = Number.POSITIVE_INFINITY
+        inp = Number.POSITIVE_INFINITY;
       else {
         if (this.base === 0) {
-          inp = amountOut
+          inp = amountOut;
         } else {
           if (this.elastic === 0) {
-            inp = Number.POSITIVE_INFINITY
+            inp = Number.POSITIVE_INFINITY;
           } else {
-            inp = (amountOut * this.base) / this.elastic
+            inp = (amountOut * this.base) / this.elastic;
           }
         }
       }
     }
-    return { inp, gasSpent: this.swapGasCost }
+    return { inp, gasSpent: this.swapGasCost };
   }
 
   calcCurrentPriceWithoutFee(direction: boolean): number {
     if (direction === true) {
       if (this.elastic === 0) {
-        return 1
+        return 1;
       } else {
-        return this.base / this.elastic
+        return this.base / this.elastic;
       }
     } else {
       if (this.base === 0) {
-        return 1
+        return 1;
       } else {
-        return this.elastic / this.base
+        return this.elastic / this.base;
       }
     }
   }

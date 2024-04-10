@@ -1,11 +1,11 @@
-import type { BridgeBento, MultiRoute, RouteLeg } from './../tines'
-import { HEXer } from '../HEXer'
-import { LiquidityProviders } from '../liquidity-providers'
-import { Bridge } from './Bridge'
-import { PoolCode } from './PoolCode'
+import type { BridgeBento, MultiRoute, RouteLeg } from "./../tines";
+import { HEXer } from "../HEXer";
+import { LiquidityProviders } from "../liquidity-providers";
+import { Bridge } from "./Bridge";
+import { PoolCode } from "./PoolCode";
 
 export class BentoBridgePoolCode extends PoolCode {
-  bentoBoxAddress: string
+  bentoBoxAddress: string;
 
   constructor(
     pool: BridgeBento,
@@ -13,16 +13,16 @@ export class BentoBridgePoolCode extends PoolCode {
     _providerName: string,
     bentoBoxAddress: `0x${string}`,
   ) {
-    super(pool, liquidityProvider, Bridge.BentoBox)
-    this.bentoBoxAddress = bentoBoxAddress
+    super(pool, liquidityProvider, Bridge.BentoBox);
+    this.bentoBoxAddress = bentoBoxAddress;
   }
 
   override getStartPoint(leg: RouteLeg): string {
     if (leg.tokenFrom.chainId === this.pool.token0.chainId) {
       // bento deposit
-      return this.bentoBoxAddress
+      return this.bentoBoxAddress;
     } else {
-      return 'RouteProcessor'
+      return "RouteProcessor";
     }
   }
 
@@ -41,16 +41,11 @@ export class BentoBridgePoolCode extends PoolCode {
             .uint8(20) // bentoDepositAmountFromBento
             .address(to)
             .uint(exactAmount)
-            .toString()
-          console.assert(
-            code.length === 53 * 2,
-            'BentoBridge deposit unexpected code length',
-          )
-          return code
+            .toString();
+          console.assert(code.length === 53 * 2, "BentoBridge deposit unexpected code length");
+          return code;
         } else {
-          throw new Error(
-            "Bento deposit from input token can't work without exact amount",
-          )
+          throw new Error("Bento deposit from input token can't work without exact amount");
         }
       } else {
         // deposit in the middle of a route
@@ -58,12 +53,9 @@ export class BentoBridgePoolCode extends PoolCode {
           .uint8(26) // bentoDepositAllFromBento
           .address(to)
           .address(leg.tokenFrom.address)
-          .toString()
-        console.assert(
-          code.length === 41 * 2,
-          'BentoBridge deposit unexpected code length',
-        )
-        return code
+          .toString();
+        console.assert(code.length === 41 * 2, "BentoBridge deposit unexpected code length");
+        return code;
       }
     } else {
       // bento withdraw
@@ -74,16 +66,11 @@ export class BentoBridgePoolCode extends PoolCode {
             .uint8(23) // bentoWithdrawShareFromRP
             .address(to)
             .uint(exactAmount)
-            .toString()
-          console.assert(
-            code.length === 53 * 2,
-            'BentoBridge withdraw unexpected code length',
-          )
-          return code
+            .toString();
+          console.assert(code.length === 53 * 2, "BentoBridge withdraw unexpected code length");
+          return code;
         } else {
-          throw new Error(
-            "Bento withdraw from input token can't work without exact amount",
-          )
+          throw new Error("Bento withdraw from input token can't work without exact amount");
         }
       } else {
         // withdraw in the middle of a route
@@ -91,26 +78,19 @@ export class BentoBridgePoolCode extends PoolCode {
           .uint8(27) // bentoWithdrawAllFromRP
           .address(leg.tokenFrom.address)
           .address(to)
-          .toString()
-        console.assert(
-          code.length === 41 * 2,
-          'BentoBridge deposit unexpected code length',
-        )
-        return code
+          .toString();
+        console.assert(code.length === 41 * 2, "BentoBridge deposit unexpected code length");
+        return code;
       }
     }
   }
 
-  override getSwapCodeForRouteProcessor2(
-    leg: RouteLeg,
-    _route: MultiRoute,
-    to: string,
-  ): string {
+  override getSwapCodeForRouteProcessor2(leg: RouteLeg, _route: MultiRoute, to: string): string {
     const code = new HEXer()
       .uint8(3) // bentoBridge
       .uint8(leg.tokenFrom.chainId === this.pool.token0.chainId ? 1 : 0) // direction = deposit/withdraw
       .address(to)
-      .toString()
-    return code
+      .toString();
+    return code;
   }
 }

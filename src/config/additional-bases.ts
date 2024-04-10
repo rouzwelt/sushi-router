@@ -1,5 +1,5 @@
-import { ChainId } from '../chain'
-import { Token } from '../currency'
+import { ChainId } from "../chain";
+import { Token } from "../currency";
 import {
   APE_ADDRESS,
   BCT_ADDRESS,
@@ -17,7 +17,7 @@ import {
   XSUSHI_ADDRESS,
   rETH2_ADDRESS,
   renBTC_ADDRESS,
-} from '../currency/token-addresses'
+} from "../currency/token-addresses";
 import {
   AAVE,
   APE,
@@ -57,10 +57,10 @@ import {
   YFI,
   renBTC,
   sETH2,
-} from '../currency/tokens'
+} from "../currency/tokens";
 
 export const ADDITIONAL_BASES: {
-  [chainId: number]: { [tokenAddress: string]: Token[] }
+  [chainId: number]: { [tokenAddress: string]: Token[] };
 } = {
   [ChainId.ETHEREUM]: {
     [rETH2_ADDRESS[ChainId.ETHEREUM]]: [sETH2[ChainId.ETHEREUM]],
@@ -77,7 +77,7 @@ export const ADDITIONAL_BASES: {
     [XSUSHI_ADDRESS[ChainId.ETHEREUM]]: [SUSHI[ChainId.ETHEREUM]],
     [KP3R_ADDRESS[ChainId.ETHEREUM]]: [LDO[ChainId.ETHEREUM]],
     [LDO_ADDRESS[ChainId.ETHEREUM]]: [KP3R[ChainId.ETHEREUM]],
-    ['0x1e0275806C3CD0bDb5C99916A064d36b5e8eAE8d']: [
+    ["0x1e0275806C3CD0bDb5C99916A064d36b5e8eAE8d"]: [
       // TWO
       AAVE[ChainId.ETHEREUM],
       MKR[ChainId.ETHEREUM],
@@ -96,7 +96,7 @@ export const ADDITIONAL_BASES: {
     [BCT_ADDRESS[ChainId.POLYGON]]: [KLIMA[ChainId.POLYGON]],
     [KLIMA_ADDRESS[ChainId.POLYGON]]: [BCT[ChainId.POLYGON]],
     // THREE
-    ['0x9B034262e0095210ab9ddec60199741a8a1FbFe7']: [
+    ["0x9B034262e0095210ab9ddec60199741a8a1FbFe7"]: [
       AAVE[ChainId.POLYGON],
       LINK[ChainId.POLYGON],
       MANA[ChainId.POLYGON],
@@ -156,4 +156,4 @@ export const ADDITIONAL_BASES: {
     [FRAX_ADDRESS[ChainId.OPTIMISM]]: [FXS[ChainId.OPTIMISM]],
     [FXS_ADDRESS[ChainId.OPTIMISM]]: [FRAX[ChainId.OPTIMISM]],
   },
-}
+};

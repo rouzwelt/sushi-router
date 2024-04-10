@@ -1,5 +1,5 @@
-function minimum(...values: number[]): number
-function minimum(...values: bigint[]): bigint
+function minimum(...values: number[]): number;
+function minimum(...values: bigint[]): bigint;
 
 /**
  * Returns the smallest member of the array
@@ -7,14 +7,14 @@ function minimum(...values: bigint[]): bigint
  * @returns the smallest memmber of the array
  */
 function minimum(...values: number[] | bigint[]) {
-  let lowest = values[0] as number | bigint
+  let lowest = values[0] as number | bigint;
   for (let i = 1; i < values.length; i++) {
-    const value = values[i] as number | bigint
+    const value = values[i] as number | bigint;
     if (value < lowest) {
-      lowest = value
+      lowest = value;
     }
   }
-  return lowest
+  return lowest;
 }
 
-export { minimum }
+export { minimum };

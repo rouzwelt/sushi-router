@@ -1,4 +1,4 @@
-import { BigintIsh } from '../math'
+import { BigintIsh } from "../math";
 
 /**
  * Converts a big int to a hex string
@@ -6,10 +6,10 @@ import { BigintIsh } from '../math'
  * @returns The hex encoded calldata
  */
 export function toHex(bigintIsh: BigintIsh) {
-  const bigInt = BigInt(bigintIsh.toString())
-  let hex = bigInt.toString(16)
+  const bigInt = BigInt(bigintIsh.toString());
+  let hex = bigInt.toString(16);
   if (hex.length % 2 !== 0) {
-    hex = `0${hex}`
+    hex = `0${hex}`;
   }
-  return `0x${hex}`
+  return `0x${hex}`;
 }

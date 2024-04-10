@@ -1,15 +1,15 @@
 export const swapFeeAbi = [
   {
     inputs: [],
-    name: 'swapFee',
+    name: "swapFee",
     outputs: [
       {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
   },
-] as const
+] as const;

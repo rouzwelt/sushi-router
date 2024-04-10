@@ -2,25 +2,25 @@ export const totalsAbi = [
   {
     inputs: [
       {
-        internalType: 'contract IERC20',
-        name: '',
-        type: 'address',
+        internalType: "contract IERC20",
+        name: "",
+        type: "address",
       },
     ],
-    name: 'totals',
+    name: "totals",
     outputs: [
       {
-        internalType: 'uint128',
-        name: 'elastic',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "elastic",
+        type: "uint128",
       },
       {
-        internalType: 'uint128',
-        name: 'base',
-        type: 'uint128',
+        internalType: "uint128",
+        name: "base",
+        type: "uint128",
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
   },
-] as const
+] as const;

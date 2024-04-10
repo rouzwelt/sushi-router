@@ -3,19 +3,19 @@ export const balanceOfAbi = [
     constant: true,
     inputs: [
       {
-        name: '_owner',
-        type: 'address',
+        name: "_owner",
+        type: "address",
       },
     ],
-    name: 'balanceOf',
+    name: "balanceOf",
     outputs: [
       {
-        name: 'balance',
-        type: 'uint256',
+        name: "balance",
+        type: "uint256",
       },
     ],
     payable: false,
-    stateMutability: 'view',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
   },
-] as const
+] as const;
