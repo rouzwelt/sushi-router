@@ -2,28 +2,27 @@ import { http, PublicClient, createPublicClient } from "viem";
 import { ChainId } from "./chain";
 import { publicClientConfig } from "./config";
 import { Type } from "./currency";
-import { ApeSwapProvider } from "./liquidity-providers";
-import { BiswapProvider } from "./liquidity-providers";
-import { CurveProvider } from "./liquidity-providers";
-import { DfynProvider } from "./liquidity-providers";
-import { DovishV3Provider } from "./liquidity-providers";
-import { ElkProvider } from "./liquidity-providers";
-import { HoneySwapProvider } from "./liquidity-providers";
-import { JetSwapProvider } from "./liquidity-providers";
-import { LaserSwapV2Provider } from "./liquidity-providers";
-import { LiquidityProvider, LiquidityProviders } from "./liquidity-providers";
-import { NativeWrapProvider } from "./liquidity-providers";
-import { NetSwapProvider } from "./liquidity-providers";
-import { PancakeSwapProvider } from "./liquidity-providers";
-import { QuickSwapProvider } from "./liquidity-providers";
-import { SpookySwapProvider } from "./liquidity-providers";
-import { SushiSwapV2Provider } from "./liquidity-providers";
-import { SushiSwapV3Provider } from "./liquidity-providers";
-import { TraderJoeProvider } from "./liquidity-providers";
-import { TridentProvider } from "./liquidity-providers";
-import { UbeSwapProvider } from "./liquidity-providers";
-import { UniswapV2Provider } from "./liquidity-providers";
-import { UniswapV3Provider } from "./liquidity-providers";
+// import { BiswapProvider } from "./liquidity-providers";
+// import { CurveProvider } from "./liquidity-providers";
+// import { DfynProvider } from "./liquidity-providers";
+// import { DovishV3Provider } from "./liquidity-providers";
+// import { ElkProvider } from "./liquidity-providers";
+// import { HoneySwapProvider } from "./liquidity-providers";
+// import { JetSwapProvider } from "./liquidity-providers";
+// import { LaserSwapV2Provider } from "./liquidity-providers";
+import { LiquidityProvider, LiquidityProviders, NativeWrapProvider } from "./liquidity-providers";
+// import { NativeWrapProvider } from "./liquidity-providers";
+// import { NetSwapProvider } from "./liquidity-providers";
+// import { PancakeSwapV2Provider } from "./liquidity-providers";
+// import { QuickSwapProvider } from "./liquidity-providers";
+// import { SpookySwapProvider } from "./liquidity-providers";
+// import { SushiSwapV2Provider } from "./liquidity-providers";
+// import { SushiSwapV3Provider } from "./liquidity-providers";
+// import { TraderJoeProvider } from "./liquidity-providers";
+// import { TridentProvider } from "./liquidity-providers";
+// import { UbeSwapProvider } from "./liquidity-providers";
+// import { UniswapV2Provider } from "./liquidity-providers";
+// import { UniswapV3Provider } from "./liquidity-providers";
 import type { PoolCode } from "./pool-codes";
 
 // import { create } from 'viem'
@@ -90,36 +89,18 @@ export class DataFetcher {
   _setProviders(providers?: LiquidityProviders[]) {
     // concrete providers
     this.providers = [new NativeWrapProvider(this.chainId, this.web3Client)];
-    [
-      ApeSwapProvider,
-      BiswapProvider,
-      CurveProvider,
-      DfynProvider,
-      DovishV3Provider,
-      ElkProvider,
-      HoneySwapProvider,
-      JetSwapProvider,
-      LaserSwapV2Provider,
-      NetSwapProvider,
-      PancakeSwapProvider,
-      SpookySwapProvider,
-      SushiSwapV2Provider,
-      SushiSwapV3Provider,
-      TraderJoeProvider,
-      QuickSwapProvider,
-      TridentProvider,
-      UbeSwapProvider,
-      UniswapV2Provider,
-      UniswapV3Provider,
-    ].forEach((p) => {
+    Object.entries(LiquidityProviders.ALL_CLASSES).forEach(([name, p]) => {
       try {
-        const provider = new p(this.chainId, this.web3Client);
-        if (
-          // If none passed, include all
-          !providers ||
-          this._providerIsIncluded(provider.getType(), providers)
-        ) {
-          this.providers.push(provider);
+        // NativeWrap is already included
+        if (name !== "NativeWrapProvider") {
+          const provider = new p(this.chainId, this.web3Client);
+          if (
+            // If none passed, include all
+            !providers ||
+            this._providerIsIncluded(provider.getType(), providers)
+          ) {
+            this.providers.push(provider);
+          }
         }
       } catch (_e: unknown) {
         // console.warn(e)

@@ -1,15 +1,15 @@
-import { getCreate2Address } from "@ethersproject/address";
 import { add, getUnixTime } from "date-fns";
-import { Address, Hex, PublicClient, encodePacked, keccak256, parseAbi } from "viem";
-import { ChainId } from "./../chain";
-import { ADDITIONAL_BASES, BASES_TO_CHECK_TRADES_AGAINST } from "./../config";
-import { Token } from "./../currency";
-import { ConstantProductRPool, RToken } from "./../tines";
-import { getCurrencyCombinations } from "../getCurrencyCombinations";
-import { PoolResponse2, filterOnDemandPools } from "../lib/api";
-import { ConstantProductPoolCode, type PoolCode } from "../pool-codes";
-import { LiquidityProvider, LiquidityProviders } from "./LiquidityProvider";
-import { memoizer } from "../memoizer";
+import { Address, Hex, PublicClient } from "viem";
+import { getReservesAbi } from "../../abi";
+import { ChainId } from "../../chain";
+import { Token } from "../../currency";
+import { ConstantProductRPool, RToken } from "../../tines";
+import { getCurrencyCombinationsEnosys } from "../../getCurrencyCombinations";
+import { PoolResponse2, filterOnDemandPools } from "../../lib/api";
+import { ConstantProductPoolCode, type PoolCode } from "../../pool-codes";
+import { LiquidityProvider, LiquidityProviders } from "../LiquidityProvider";
+import { memoizer } from "../../memoizer";
+import { ENOSYS_APS, ENOSYS_BNZ, ENOSYS_EQNT, ENOSYS_HLN, USDT, WETH9, WNATIVE } from "../../currency";
 
 interface PoolInfo {
   poolCode: PoolCode;
@@ -23,16 +23,12 @@ interface StaticPool {
   fee: number;
 }
 
-const getReservesAbi = parseAbi([
-  "function getReserves() public view returns (uint112 _reserve0, uint112 _reserve1, uint16 _token0FeePercent, uint16 _token1FeePercent)",
-]);
-
-export class Camelot extends LiquidityProvider {
+export class EnosysProvider extends LiquidityProvider {
   getType(): LiquidityProviders {
-    return LiquidityProviders.Camelot;
+    return LiquidityProviders.Enosys;
   }
   getPoolProviderName(): string {
-    return "Camelot";
+    return "Enosys";
   }
   readonly TOP_POOL_SIZE = 155;
   readonly TOP_POOL_LIQUIDITY_THRESHOLD = 5000;
@@ -62,13 +58,7 @@ export class Camelot extends LiquidityProvider {
 
   constructor(chainId: ChainId, web3Client: PublicClient) {
     super(chainId, web3Client);
-    this.factory = {
-      [ChainId.ARBITRUM]: "0x6EcCab422D763aC031210895C81787E87B43A652",
-    };
-    this.initCodeHash = {
-      [ChainId.ARBITRUM]: "0xa856464ae65f7619087bc369daaf7e387dae1e5af69cfa7935850ebf754b04c1",
-    };
-    if (!(chainId in this.factory) || !(chainId in this.initCodeHash)) {
+    if (chainId !== ChainId.FLARE) {
       throw new Error(
         `${this.getType()} cannot be instantiated for chainid ${chainId}, no factory or initCodeHash`,
       );
@@ -188,39 +178,23 @@ export class Camelot extends LiquidityProvider {
     // )
   }
 
-  _getPoolAddress(t1: Token, t2: Token): Address {
-    return getCreate2Address(
-      this.factory[this.chainId as keyof typeof this.factory],
-      keccak256(
-        encodePacked(["address", "address"], [t1.address as Address, t2.address as Address]),
-      ),
-      this.initCodeHash[this.chainId as keyof typeof this.initCodeHash],
-    ) as Address;
-  }
-
-  // TODO: Decide if this is worth keeping as fallback in case fetching top pools fails? only used on initial load.
-  _getProspectiveTokens(t0: Token, t1: Token) {
-    const set = new Set<Token>([
-      t0,
-      t1,
-      ...(BASES_TO_CHECK_TRADES_AGAINST?.[this.chainId] ?? []),
-      ...(ADDITIONAL_BASES?.[this.chainId]?.[t0.address] ?? []),
-      ...(ADDITIONAL_BASES?.[this.chainId]?.[t1.address] ?? []),
-    ]);
-    return Array.from(set);
-  }
-
   getStaticPools(t1: Token, t2: Token): StaticPool[] {
-    const currencyCombination = getCurrencyCombinations(this.chainId, t1, t2).map(([c0, c1]) =>
-      c0.sortsBefore(c1) ? [c0, c1] : [c1, c0],
+    const currencyCombination = getCurrencyCombinationsEnosys(this.chainId, t1, t2).map(
+      ([c0, c1]) => (c0.sortsBefore(c1) ? [c0, c1] : [c1, c0]),
     );
-    return currencyCombination.map((combination) => ({
-      address: this._getPoolAddress(combination[0]!, combination[1]!),
-      token0: combination[0]!,
-      token1: combination[1]!,
-      fee: this.fee,
-    }));
-    // return pools
+    return currencyCombination
+      .map((combination) => {
+        const p = getEnosysPoolAddress(combination[0], combination[1]);
+        if (p)
+          return {
+            address: getEnosysPoolAddress(combination[0], combination[1]),
+            token0: combination[0],
+            token1: combination[1],
+            fee: this.fee,
+          };
+        else return null;
+      })
+      .filter((v) => v !== null) as StaticPool[];
   }
 
   startFetchPoolsData() {
@@ -260,3 +234,69 @@ export class Camelot extends LiquidityProvider {
     this.blockListener = undefined;
   }
 }
+
+function getEnosysPoolAddress(t1: Token, t2: Token): string | undefined {
+  for (let i = 0; i < EnosysPools.length; i++) {
+    if (
+      (t1.address.toLowerCase() === EnosysPools[i].token0.toLowerCase() &&
+        t2.address.toLowerCase() === EnosysPools[i].token1.toLowerCase()) ||
+      (t1.address.toLowerCase() === EnosysPools[i].token1.toLowerCase() &&
+        t2.address.toLowerCase() === EnosysPools[i].token0.toLowerCase())
+    )
+      return EnosysPools[i].address;
+  }
+  return;
+}
+
+export const EnosysTokens = [
+  WNATIVE[ChainId.FLARE],
+  USDT[ChainId.FLARE],
+  WETH9[ChainId.FLARE],
+  ENOSYS_BNZ,
+  ENOSYS_EQNT,
+  ENOSYS_HLN,
+  ENOSYS_APS,
+];
+
+export const EnosysPools = [
+  {
+    address: "0x7520005032F43229F606d3ACeae97045b9D6F7ea",
+    token0: "0x1D80c49BbBCd1C0911346656B529DF9E5c2F783d",
+    token1: "0x96B41289D90444B8adD57e6F265DB5aE8651DF29",
+  },
+  {
+    address: "0x2C934BbBD152A40419d3330e4d79f362Bc6691D6",
+    token0: "0x1D80c49BbBCd1C0911346656B529DF9E5c2F783d",
+    token1: "0xfD3449E8Ee31117a848D41Ee20F497a9bCb53164",
+  },
+  {
+    address: "0xEd920325b7dB1e909DbE2d562fCD07f714395e10",
+    token0: "0x60fDC7B744E886e96Aa0DEf5f69eE440dB9d8c77",
+    token1: "0x140D8d3649Ec605CF69018C627fB44cCC76eC89f",
+  },
+  {
+    address: "0x80A08BbAbB0A5C51A9ae53211Df09EF23Debd4f3",
+    token0: "0x60fDC7B744E886e96Aa0DEf5f69eE440dB9d8c77",
+    token1: "0x1D80c49BbBCd1C0911346656B529DF9E5c2F783d",
+  },
+  {
+    address: "0x32fd7858393918A984DA6ee279EcA27f630a1C02",
+    token0: "0xa76dcddce60a442d69bac7158f3660f50921b122",
+    token1: "0x1D80c49BbBCd1C0911346656B529DF9E5c2F783d",
+  },
+  {
+    address: "0x87E0E33558c8e8EAE3c1E9EB276e05574190b48a",
+    token0: "0x140d8d3649ec605cf69018c627fb44ccc76ec89f",
+    token1: "0xff56eb5b1a7faa972291117e5e9565da29bc808d",
+  },
+  {
+    address: "0x02C6b5B1fbE01Da872E21f9Dab1B980933B0EF27",
+    token0: "0x140d8d3649ec605cf69018c627fb44ccc76ec89f",
+    token1: "0x1d80c49bbbcd1c0911346656b529df9e5c2f783d",
+  },
+  {
+    address: "0xef24D5155818d4bD16AF0Cea1148A147eb620743",
+    token0: "0xff56eb5b1a7faa972291117e5e9565da29bc808d",
+    token1: "0x1d80c49bbbcd1c0911346656b529df9e5c2f783d",
+  },
+];

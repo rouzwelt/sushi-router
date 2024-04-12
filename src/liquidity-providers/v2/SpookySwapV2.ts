@@ -1,9 +1,9 @@
 import { PublicClient } from "viem";
-import { ChainId } from "./../chain";
-import { LiquidityProviders } from "./LiquidityProvider";
-import { UniswapV2BaseProvider } from "./UniswapV2Base";
+import { ChainId } from "../../chain";
+import { LiquidityProviders } from "../LiquidityProvider";
+import { UniswapV2BaseProvider } from "../UniswapV2Base";
 
-export class SpookySwapProvider extends UniswapV2BaseProvider {
+export class SpookySwapV2Provider extends UniswapV2BaseProvider {
   constructor(chainId: ChainId, web3Client: PublicClient) {
     const factory = {
       [ChainId.FANTOM]: "0x152eE697f2E276fA89E96742e9bB9aB1F2E61bE3",
@@ -14,9 +14,9 @@ export class SpookySwapProvider extends UniswapV2BaseProvider {
     super(chainId, web3Client, factory, initCodeHash);
   }
   getType(): LiquidityProviders {
-    return LiquidityProviders.SpookySwap;
+    return LiquidityProviders.SpookySwapV2;
   }
   getPoolProviderName(): string {
-    return "SpookySwap";
+    return "SpookySwapV2";
   }
 }

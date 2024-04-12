@@ -2,7 +2,7 @@ import flatMap from "lodash.flatmap";
 import { ChainId } from "./chain";
 import { ADDITIONAL_BASES, BASES_TO_CHECK_TRADES_AGAINST, CUSTOM_BASES } from "./config";
 import { Token, Type } from "./currency";
-import { EnosysTokens } from "./liquidity-providers/Enosys";
+import { EnosysTokens } from "./liquidity-providers/v2/Enosys";
 
 export function getCurrencyCombinations(chainId: ChainId, currencyA: Type, currencyB: Type) {
   const [tokenA, tokenB] = chainId

@@ -1,9 +1,9 @@
 import { PublicClient } from "viem";
-import { ChainId } from "../chain";
-import { LiquidityProviders } from "./LiquidityProvider";
-import { UniswapV2BaseProvider } from "./UniswapV2Base";
+import { ChainId } from "../../chain";
+import { LiquidityProviders } from "../LiquidityProvider";
+import { UniswapV2BaseProvider } from "../UniswapV2Base";
 
-export class PancakeSwapProvider extends UniswapV2BaseProvider {
+export class PancakeSwapV2Provider extends UniswapV2BaseProvider {
   override fee = 0.0025;
   constructor(chainId: ChainId, web3Client: PublicClient) {
     const factory = {
@@ -17,9 +17,9 @@ export class PancakeSwapProvider extends UniswapV2BaseProvider {
     super(chainId, web3Client, factory, initCodeHash);
   }
   getType(): LiquidityProviders {
-    return LiquidityProviders.PancakeSwap;
+    return LiquidityProviders.PancakeSwapV2;
   }
   getPoolProviderName(): string {
-    return "PancakeSwap";
+    return "PancakeSwapV2";
   }
 }
