@@ -1,29 +1,9 @@
-import { http, PublicClient, createPublicClient } from "viem";
+import { Type } from "./currency";
 import { ChainId } from "./chain";
 import { publicClientConfig } from "./config";
-import { Type } from "./currency";
-// import { BiswapProvider } from "./liquidity-providers";
-// import { CurveProvider } from "./liquidity-providers";
-// import { DfynProvider } from "./liquidity-providers";
-// import { DovishV3Provider } from "./liquidity-providers";
-// import { ElkProvider } from "./liquidity-providers";
-// import { HoneySwapProvider } from "./liquidity-providers";
-// import { JetSwapProvider } from "./liquidity-providers";
-// import { LaserSwapV2Provider } from "./liquidity-providers";
-import { LiquidityProvider, LiquidityProviders, NativeWrapProvider } from "./liquidity-providers";
-// import { NativeWrapProvider } from "./liquidity-providers";
-// import { NetSwapProvider } from "./liquidity-providers";
-// import { PancakeSwapV2Provider } from "./liquidity-providers";
-// import { QuickSwapProvider } from "./liquidity-providers";
-// import { SpookySwapProvider } from "./liquidity-providers";
-// import { SushiSwapV2Provider } from "./liquidity-providers";
-// import { SushiSwapV3Provider } from "./liquidity-providers";
-// import { TraderJoeProvider } from "./liquidity-providers";
-// import { TridentProvider } from "./liquidity-providers";
-// import { UbeSwapProvider } from "./liquidity-providers";
-// import { UniswapV2Provider } from "./liquidity-providers";
-// import { UniswapV3Provider } from "./liquidity-providers";
 import type { PoolCode } from "./pool-codes";
+import { http, PublicClient, createPublicClient } from "viem";
+import { LiquidityProvider, LiquidityProviders, NativeWrapProvider } from "./liquidity-providers";
 
 // import { create } from 'viem'
 const isTest =
