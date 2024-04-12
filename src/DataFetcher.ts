@@ -91,16 +91,13 @@ export class DataFetcher {
     this.providers = [new NativeWrapProvider(this.chainId, this.web3Client)];
     Object.entries(LiquidityProviders.ALL_CLASSES).forEach(([name, p]) => {
       try {
-        // NativeWrap is already included
-        if (name !== "NativeWrapProvider") {
-          const provider = new p(this.chainId, this.web3Client);
-          if (
-            // If none passed, include all
-            !providers ||
-            this._providerIsIncluded(provider.getType(), providers)
-          ) {
-            this.providers.push(provider);
-          }
+        const provider = new p(this.chainId, this.web3Client);
+        if (
+          // If none passed, include all
+          !providers ||
+          this._providerIsIncluded(provider.getType(), providers)
+        ) {
+          this.providers.push(provider);
         }
       } catch (_e: unknown) {
         // console.warn(e)
