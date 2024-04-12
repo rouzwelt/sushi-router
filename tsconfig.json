@@ -6,7 +6,6 @@
     "module": "commonjs",
     "target": "es2021",
     "outDir": "./dist",
-    // "outFile": "./dist/index",
     "rootDir": "src",
     "skipLibCheck": true,
     "declaration": true,
@@ -14,6 +13,6 @@
     "sourceMap": false,
     "strict": false,
     "esModuleInterop": true,
-    "emitDeclarationOnly": true,
+    "emitDeclarationOnly": false,
   }
 }

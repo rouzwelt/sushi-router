@@ -1,9 +1,7 @@
 // eslint-disable-next-line
 import type * as _ from '@prisma/client/runtime'
 
-import { DecimalToString, 
-  // Prisma, PrismaClient
- } from '@sushiswap/database'
+import { DecimalToString } from '@sushiswap/database'
 
 import { z } from 'zod'
 
