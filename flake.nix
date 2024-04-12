@@ -9,7 +9,7 @@
   flake-utils.lib.eachDefaultSystem (system:
     let
       pkgs = import nixpkgs {};
-    in rec {
+    in {
       # For `nix develop`:
       devShell = pkgs.mkShell {
         nativeBuildInputs = [
