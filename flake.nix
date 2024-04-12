@@ -8,7 +8,7 @@
 
   flake-utils.lib.eachDefaultSystem (system:
     let
-      pkgs = import nixpkgs {};
+      pkgs = import nixpkgs { inherit system; };
     in {
       # For `nix develop`:
       devShell = pkgs.mkShell {
