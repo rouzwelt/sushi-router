@@ -1,59 +1,166 @@
-import { ChainId, chainShortName } from 'sushi/chain'
-import type { Token } from 'sushi/currency'
-import { PublicClient } from 'viem'
-
-import type { PoolCode } from '../pools/PoolCode'
+import { PublicClient } from "viem";
+import { ChainId, chainShortName } from "./../chain";
+import type { Token } from "./../currency";
+import type { PoolCode } from "../pool-codes";
+import {
+  ApeSwapProvider,
+  BaseSwapProvider,
+  BiswapProvider,
+  BlastDEXProvider,
+  CamelotProvider,
+  CurveProvider,
+  DfynProvider,
+  DovishV3Provider,
+  DyorV2Provider,
+  ElkProvider,
+  EnosysProvider,
+  HoneySwapProvider,
+  HyperBlastProvider,
+  JetSwapProvider,
+  KinetixV2Provider,
+  KinetixV3Provider,
+  LaserSwapV2Provider,
+  MonoswapV2Provider,
+  MonoswapV3Provider,
+  NativeWrapProvider,
+  NetSwapProvider,
+  PancakeSwapV2Provider,
+  PancakeSwapV3Provider,
+  QuickSwapProvider,
+  SolarbeamProvider,
+  SpookySwapV2Provider,
+  SpookySwapV3Provider,
+  SushiSwapV2Provider,
+  SushiSwapV3Provider,
+  SwapBlastProvider,
+  ThrusterV2_13Provider,
+  ThrusterV2_3Provider,
+  ThrusterV3Provider,
+  TraderJoeProvider,
+  TridentProvider,
+  UbeSwapProvider,
+  UniswapV2Provider,
+  UniswapV3Provider,
+  VVSStandardProvider,
+  WagmiProvider,
+} from ".";
 
 export enum LiquidityProviders {
-  SushiSwapV2 = 'SushiSwapV2',
-  SushiSwapV3 = 'SushiSwapV3',
-  UniswapV2 = 'UniswapV2',
-  UniswapV3 = 'UniswapV3',
-  Trident = 'Trident',
-  QuickSwap = 'QuickSwap',
-  ApeSwap = 'ApeSwap',
-  PancakeSwap = 'PancakeSwap',
-  TraderJoe = 'TraderJoe',
-  Dfyn = 'Dfyn',
-  Elk = 'Elk',
-  JetSwap = 'JetSwap',
-  SpookySwap = 'SpookySwap',
-  NetSwap = 'NetSwap',
-  NativeWrap = 'NativeWrap',
-  HoneySwap = 'HoneySwap',
-  UbeSwap = 'UbeSwap',
-  Biswap = 'Biswap',
-  CurveSwap = 'CurveSwap',
-  DovishV3 = 'DovishV3',
-  Wagmi = 'Wagmi',
-  LaserSwap = 'LaserSwap',
-  BaseSwap = 'BaseSwap',
-  AlgebraIntegral = 'AlgebraIntegral',
+  SushiSwapV2 = "SushiSwapV2",
+  SushiSwapV3 = "SushiSwapV3",
+  UniswapV2 = "UniswapV2",
+  UniswapV3 = "UniswapV3",
+  Trident = "Trident",
+  QuickSwap = "QuickSwap",
+  ApeSwap = "ApeSwap",
+  PancakeSwapV2 = "PancakeSwapV2",
+  PancakeSwapV3 = "PancakeSwapV3",
+  TraderJoe = "TraderJoe",
+  Dfyn = "Dfyn",
+  Elk = "Elk",
+  JetSwap = "JetSwap",
+  SpookySwapV2 = "SpookySwapV2",
+  SpookySwapV3 = "SpookySwapV3",
+  NetSwap = "NetSwap",
+  NativeWrap = "NativeWrap",
+  HoneySwap = "HoneySwap",
+  UbeSwap = "UbeSwap",
+  Biswap = "Biswap",
+  CurveSwap = "CurveSwap",
+  DovishV3 = "DovishV3",
+  Wagmi = "Wagmi",
+  LaserSwap = "LaserSwap",
+  BaseSwap = "BaseSwap",
+  AlgebraIntegral = "AlgebraIntegral",
+  Solarbeam = "Solarbeam",
+  Swapsicle = "Swapsicle",
+  VVSStandard = "VVSStandard",
+  Fraxswap = "Fraxswap",
+  SwapBlast = "SwapBlast",
+  BlastDEX = "BlastDEX",
+  MonoswapV2 = "MonoswapV2",
+  MonoswapV3 = "MonoswapV3",
+  ThrusterV2 = "ThrusterV2",
+  ThrusterV3 = "ThrusterV3",
+  DyorV2 = "DyorV2",
+  HyperBlast = "HyperBlast",
+  KinetixV2 = "KinetixV2",
+  KinetixV3 = "KinetixV3",
+  Camelot = "Camelot",
+  Enosys = "Enosys",
+}
+
+export namespace LiquidityProviders {
+  /**
+   * All liquidity providers class objects
+   */
+  export const ALL_CLASSES = {
+    ApeSwapProvider,
+    BaseSwapProvider,
+    BiswapProvider,
+    BlastDEXProvider,
+    CamelotProvider,
+    CurveProvider,
+    DfynProvider,
+    DovishV3Provider,
+    DyorV2Provider,
+    ElkProvider,
+    EnosysProvider,
+    HoneySwapProvider,
+    HyperBlastProvider,
+    JetSwapProvider,
+    KinetixV2Provider,
+    KinetixV3Provider,
+    LaserSwapV2Provider,
+    MonoswapV2Provider,
+    MonoswapV3Provider,
+    NativeWrapProvider,
+    NetSwapProvider,
+    PancakeSwapV2Provider,
+    PancakeSwapV3Provider,
+    QuickSwapProvider,
+    SolarbeamProvider,
+    SpookySwapV2Provider,
+    SpookySwapV3Provider,
+    SushiSwapV2Provider,
+    SushiSwapV3Provider,
+    SwapBlastProvider,
+    ThrusterV2_13Provider,
+    ThrusterV2_3Provider,
+    ThrusterV3Provider,
+    TraderJoeProvider,
+    TridentProvider,
+    UbeSwapProvider,
+    UniswapV2Provider,
+    UniswapV3Provider,
+    VVSStandardProvider,
+    WagmiProvider,
+  };
 }
 
 export abstract class LiquidityProvider {
-  chainId: ChainId
-  client: PublicClient
-  lastUpdateBlock = 0
-  readonly ON_DEMAND_POOLS_LIFETIME_IN_SECONDS = 60
-  readonly FETCH_AVAILABLE_POOLS_AFTER_SECONDS = 900
+  chainId: ChainId;
+  client: PublicClient;
+  lastUpdateBlock = 0;
+  readonly ON_DEMAND_POOLS_LIFETIME_IN_SECONDS = 60;
+  readonly FETCH_AVAILABLE_POOLS_AFTER_SECONDS = 900;
 
   constructor(chainId: ChainId, client: PublicClient) {
-    this.chainId = chainId
-    this.client = client
+    this.chainId = chainId;
+    this.client = client;
   }
 
-  abstract getType(): LiquidityProviders
+  abstract getType(): LiquidityProviders;
 
   /**
    * The name of liquidity provider to be used for pool naming. For example, 'SushiSwap'
    */
-  abstract getPoolProviderName(): string
+  abstract getPoolProviderName(): string;
 
   /**
    * Initiates event listeners for top pools
    */
-  abstract startFetchPoolsData(): void
+  abstract startFetchPoolsData(): void;
 
   /**
    * Fetches relevant pools for the given tokens
@@ -64,8 +171,8 @@ export abstract class LiquidityProvider {
     t0: Token,
     t1: Token,
     excludePools?: Set<string>,
-    options?: { blockNumber?: bigint, memoize?: boolean }
-  ): Promise<void>
+    options?: { blockNumber?: bigint; memoize?: boolean },
+  ): Promise<void>;
 
   /**
    * Returns a list of PoolCode
@@ -73,16 +180,16 @@ export abstract class LiquidityProvider {
    * @param t1 Token
    * @returns PoolCode[]
    */
-  abstract getCurrentPoolList(t0: Token, t1: Token): PoolCode[]
+  abstract getCurrentPoolList(t0: Token, t1: Token): PoolCode[];
 
-  abstract stopFetchPoolsData(): void
+  abstract stopFetchPoolsData(): void;
 
   /**
    * Returns last processed block number
    * @returns last processed block number
    */
   getLastUpdateBlock(): number {
-    return this.lastUpdateBlock
+    return this.lastUpdateBlock;
   }
 
   /**
@@ -94,11 +201,11 @@ export abstract class LiquidityProvider {
   getLogPrefix(): string {
     return `${chainShortName[this.chainId]}/${this.chainId}~${
       this.lastUpdateBlock
-    }~${this.getType()}`
+    }~${this.getType()}`;
   }
 
   getTradeId = (t0: Token, t1: Token) =>
     [t0.address.toLowerCase(), t1.address.toLowerCase()]
       .sort((first, second) => (first > second ? -1 : 1))
-      .join(':')
+      .join(":");
 }
