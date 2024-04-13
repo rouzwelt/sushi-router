@@ -1,7 +1,5 @@
 import { ChainId } from './constants'
-import raw from './generated'
-
-const RAW = [...raw] as const
+import CHAINLIST from './generated'
 
 const EIP3091_OVERRIDE = [
   ChainId.OPTIMISM,
@@ -10,16 +8,7 @@ const EIP3091_OVERRIDE = [
   ChainId.FILECOIN,
 ] as number[]
 
-type Data = (typeof RAW)[number]
-
-export interface Chain {
-  name: string
-  nativeCurrency: NativeCurrency
-  shortName: string
-  chainId: number
-  explorers?: Explorer[]
-  parent?: Parent
-}
+type Data = (typeof CHAINLIST)[number]
 
 interface Explorer {
   name: string
@@ -57,7 +46,15 @@ const Type = {
 } as const
 type Type = (typeof Type)[keyof typeof Type]
 
-// biome-ignore lint/suspicious/noUnsafeDeclarationMerging: explaination
+export interface Chain {
+  name: string
+  nativeCurrency: NativeCurrency
+  shortName: string
+  chainId: number
+  explorers?: Explorer[]
+  parent?: Parent
+}
+
 export class Chain implements Chain {
   public static fromRaw(data: Data) {
     return new Chain(data)
@@ -184,7 +181,7 @@ export class Chain implements Chain {
 }
 
 export const natives = Object.fromEntries(
-  RAW.map((data): [ChainId, NativeCurrency] => [
+  CHAINLIST.map((data): [ChainId, NativeCurrency] => [
     data.chainId,
     data.nativeCurrency,
   ]),
@@ -192,27 +189,27 @@ export const natives = Object.fromEntries(
 
 // Chain Id => Chain mapping
 export const chains = Object.fromEntries(
-  RAW.map((data): [ChainId, Chain] => [data.chainId, new Chain(data)]),
+  CHAINLIST.map((data): [ChainId, Chain] => [data.chainId, new Chain(data)]),
 )
 
-// Chain Id => Chain mapping
+// Chain Id => Chain L2 mapping
 export const chainsL2 = Object.fromEntries(
-  RAW.filter((data) => 'parent' in data && data.parent.type === Type.L2).map(
+  CHAINLIST.filter((data) => 'parent' in data && data.parent.type === Type.L2).map(
     (data): [ChainId, Chain] => [data.chainId, new Chain(data)],
   ),
 )
 
 // ChainId array
-export const chainIds = RAW.map((chain) => chain.chainId)
+export const chainIds = CHAINLIST.map((chain) => chain.chainId)
 
 // Chain Short Name => Chain Id mapping
 export const chainShortNameToChainId = Object.fromEntries(
-  RAW.map((data): [string, number] => [data.shortName, data.chainId]),
+  CHAINLIST.map((data): [string, number] => [data.shortName, data.chainId]),
 )
 
 // Chain Id => Short Name mapping
 export const chainShortName = Object.fromEntries(
-  RAW.map((data): [number, string] => [
+  CHAINLIST.map((data): [number, string] => [
     data.chainId,
     Chain.fromRaw(data).shortName,
   ]),
@@ -220,7 +217,7 @@ export const chainShortName = Object.fromEntries(
 
 // Chain Id => Chain Name mapping
 export const chainName = Object.fromEntries(
-  RAW.map((data): [number, string] => [data.chainId, Chain.fromRaw(data).name]),
+  CHAINLIST.map((data): [number, string] => [data.chainId, Chain.fromRaw(data).name]),
 )
 
 export * from './constants.js'
