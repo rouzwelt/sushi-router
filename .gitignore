@@ -4,4 +4,4 @@ node_modules
 .DS_Store
 mem-cache
 *.txt
-src/chain/generated.ts
+src/chain
