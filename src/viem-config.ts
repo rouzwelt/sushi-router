@@ -85,6 +85,7 @@ export {
   // evmos,
   //  evmosTestnet,
   fantom,
+  flare,
   // fantomTestnet,
   // filecoinTestnet,
   foundry,
