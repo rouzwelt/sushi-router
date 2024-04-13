@@ -1,18 +1,17 @@
-import { ChainId } from 'sushi/chain'
+import { Hex } from 'viem'
+import { ChainId } from './chain'
 import {
-  getBigInt,
   MultiRoute,
+  RToken,
   RouteLeg,
   RouteStatus,
-  RToken,
-} from '@sushiswap/tines'
-import { Hex } from 'viem'
-
+  getBigInt,
+} from './tines'
 import { HEXer } from './HEXer'
 import { PoolCode } from './pools/PoolCode'
 
 function last<T>(arr: T[]): T {
-  return arr[arr.length - 1]
+  return arr[arr.length - 1] as T
 }
 
 enum TokenType {
@@ -86,7 +85,7 @@ export class TinesToRouteProcessor {
   getRPCodeForsimpleWrapRoute(route: MultiRoute, toAddress: string): Hex {
     const hex = new HEXer()
       .uint8(5) // wrapAndDistributeERC20Amounts
-      .address(route.legs[0].poolAddress)
+      .address(route.legs[0]!.poolAddress)
       .uint8(1)
       .address(toAddress)
       .uint(route.amountIn)
@@ -104,7 +103,7 @@ export class TinesToRouteProcessor {
     if (outputDistribution.length === 0) {
       outAddress = toAddress
     } else if (outputDistribution.length === 1) {
-      outAddress = this.getPoolCode(outputDistribution[0]).getStartPoint(
+      outAddress = this.getPoolCode(outputDistribution[0]!).getStartPoint(
         l,
         route,
       )
@@ -139,7 +138,7 @@ export class TinesToRouteProcessor {
     let fromToken = route.fromToken
     if (fromToken.address === '') {
       // Native
-      fromToken = route.legs[0].tokenTo // Change to wrapped Native
+      fromToken = route.legs[0]!.tokenTo // Change to wrapped Native
     }
 
     const legs = this.tokenOutputLegs.get(
@@ -165,7 +164,7 @@ export class TinesToRouteProcessor {
         // So, to prevent user from providing appove to RouteProcessor in case if he swaps from CELO,
         // we support payment to RP in native coin and then distribute it as ERC20 tokens
         hex.uint8(7) // distributeERC20AmountsFromRP
-      } else hex.uint8(5).address(route.legs[0].poolAddress) // wrapAndDistributeERC20Amounts
+      } else hex.uint8(5).address(route.legs[0]!.poolAddress) // wrapAndDistributeERC20Amounts
     } else hex.uint8(3) // distributeERC20Amounts
 
     hex.uint8(legsAddr.length)

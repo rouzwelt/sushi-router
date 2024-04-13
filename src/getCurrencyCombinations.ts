@@ -1,11 +1,11 @@
-import { ChainId } from 'sushi/chain'
-import { Token, Type } from 'sushi/currency'
+import flatMap from 'lodash.flatmap'
+import { ChainId } from './chain'
 import {
   ADDITIONAL_BASES,
   BASES_TO_CHECK_TRADES_AGAINST,
   CUSTOM_BASES,
-} from '@sushiswap/router-config'
-import flatMap from 'lodash.flatmap'
+} from './config'
+import { Token, Type } from 'sushi/currency'
 
 export function getCurrencyCombinations(
   chainId: ChainId,
@@ -16,10 +16,7 @@ export function getCurrencyCombinations(
     ? [currencyA?.wrapped, currencyB?.wrapped]
     : [undefined, undefined]
 
-  const common =
-    chainId in BASES_TO_CHECK_TRADES_AGAINST
-      ? BASES_TO_CHECK_TRADES_AGAINST[chainId]
-      : []
+  const common = BASES_TO_CHECK_TRADES_AGAINST?.[chainId] ?? []
   const additionalA = tokenA
     ? ADDITIONAL_BASES[chainId]?.[tokenA.address] ?? []
     : []
@@ -29,9 +26,8 @@ export function getCurrencyCombinations(
 
   const bases: Token[] = [...common, ...additionalA, ...additionalB]
 
-  const basePairs: [Token, Token][] = flatMap(
-    bases,
-    (base): [Token, Token][] => bases.map((otherBase) => [base, otherBase]),
+  const basePairs: [Token, Token][] = flatMap(bases, (base): [Token, Token][] =>
+    bases.map((otherBase) => [base, otherBase]),
   )
 
   if (!tokenA || !tokenB) {
@@ -87,10 +83,7 @@ export function getV3CurrencyCombinations(
     ? [currencyA?.wrapped, currencyB?.wrapped]
     : [undefined, undefined]
 
-  const common =
-    chainId in BASES_TO_CHECK_TRADES_AGAINST
-      ? BASES_TO_CHECK_TRADES_AGAINST[chainId]
-      : []
+  const common = BASES_TO_CHECK_TRADES_AGAINST?.[chainId] ?? []
 
   if (!tokenA || !tokenB) {
     return []

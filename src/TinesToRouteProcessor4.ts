@@ -1,28 +1,37 @@
-import { ChainId } from 'sushi/chain'
-import { MultiRoute, RouteLeg, RouteStatus, RToken } from '@sushiswap/tines'
 import { Hex } from 'viem'
-
+import { ChainId } from './chain'
+import { MultiRoute, RToken, RouteLeg, RouteStatus } from './tines'
 import { PoolCode } from './pools/PoolCode'
 import {
-  getTokenType,
   PermitData,
+  RouterLiquiditySource,
   TinesToRouteProcessor2,
   TokenType,
+  getTokenType,
 } from './TinesToRouteProcessor2'
 
 class TinesToRouteProcessor4 extends TinesToRouteProcessor2 {
-  constructor(
-    routeProcessorAddress: string,
-    chainId: ChainId,
-    pools: Map<string, PoolCode>,
-  ) {
-    super(routeProcessorAddress, chainId, pools)
+  // constructor(
+  //   routeProcessorAddress: string,
+  //   chainId: ChainId,
+  //   pools: Map<string, PoolCode>,
+  // ) {
+  //   super(routeProcessorAddress, chainId, pools)
+  // }
+
+  override getPoolCode(l: RouteLeg): PoolCode {
+    const pc = this.pools.get(l.uniqueId)
+    if (pc === undefined) {
+      throw new Error(`unknown pool: ${l.uniqueId}`)
+    }
+    return pc
   }
 
   override getRouteProcessorCode(
     route: MultiRoute,
     toAddress: string,
     permits: PermitData[] = [],
+    source = RouterLiquiditySource.Sender,
   ): Hex | '' {
     // 0. Check for no route
     if (route.status === RouteStatus.NoWay || route.legs.length === 0) return ''
@@ -47,7 +56,12 @@ class TinesToRouteProcessor4 extends TinesToRouteProcessor2 {
             res += this.processNativeCode(token, route, toAddress)
             break
           case TokenType.ERC20:
-            res += this.processERC20Code(i > 0, token, route, toAddress)
+            res += this.processERC20Code(
+              i > 0 || source === RouterLiquiditySource.XSwap,
+              token,
+              route,
+              toAddress,
+            )
             break
           case TokenType.BENTO:
             res += this.processBentoCode(token, route, toAddress)
@@ -68,11 +82,11 @@ class TinesToRouteProcessor4 extends TinesToRouteProcessor2 {
     if (outputDistribution.length !== 1) return false
     if (token.tokenId === route.fromToken.tokenId) return false
 
-    const startPoint = this.getPoolCode(outputDistribution[0]).getStartPoint(
-      outputDistribution[0],
+    const startPoint = this.getPoolCode(outputDistribution[0]!).getStartPoint(
+      outputDistribution[0]!,
       route,
     )
-    return startPoint === outputDistribution[0].poolAddress
+    return startPoint === outputDistribution[0]!.poolAddress
   }
 
   override swapCode(
@@ -92,11 +106,12 @@ export function getRouteProcessor4Code(
   toAddress: string,
   pools: Map<string, PoolCode>,
   permits: PermitData[] = [],
+  source = RouterLiquiditySource.Sender,
 ): string {
   const rpc = new TinesToRouteProcessor4(
     routeProcessorAddress,
     route.fromToken.chainId as ChainId,
     pools,
   )
-  return rpc.getRouteProcessorCode(route, toAddress, permits)
+  return rpc.getRouteProcessorCode(route, toAddress, permits, source)
 }

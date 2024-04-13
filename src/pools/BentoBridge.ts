@@ -1,5 +1,4 @@
-import type { BridgeBento, MultiRoute, RouteLeg } from '@sushiswap/tines'
-
+import type { BridgeBento, MultiRoute, RouteLeg } from '../../tines'
 import { HEXer } from '../HEXer'
 import { LiquidityProviders } from '../liquidity-providers'
 import { Bridge } from './Bridge'
@@ -102,7 +101,7 @@ export class BentoBridgePoolCode extends PoolCode {
     }
   }
 
-  getSwapCodeForRouteProcessor2(
+  override getSwapCodeForRouteProcessor2(
     leg: RouteLeg,
     _route: MultiRoute,
     to: string,
