@@ -11,6 +11,9 @@ jobs:
           fetch-depth: 0
           submodules: recursive
 
+      - uses: DeterminateSystems/nix-installer-action@v4
+      - uses: DeterminateSystems/magic-nix-cache-action@v2
+
       - name: Install NodeJS v21
         uses: actions/setup-node@v4
         with:
@@ -18,10 +21,10 @@ jobs:
           cache: 'npm'
 
       - name: Install
-        run:  npm install
+        run:  nix develop -c npm install
 
       - name: Build
-        run:  npm run build
+        run:  nix develop -c npm run build
 
       - name: Git Config
         run: |
