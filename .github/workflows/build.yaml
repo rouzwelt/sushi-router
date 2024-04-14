@@ -7,14 +7,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install NodeJS v21
-        uses: actions/setup-node@v4
-        with:
-          node-version: 21
-          cache: 'npm'
+      - uses: DeterminateSystems/nix-installer-action@v4
+      - uses: DeterminateSystems/magic-nix-cache-action@v2
 
       - name: Install dependencies
-        run: npm install
+        run:  nix develop -c npm install
 
       - name: Build
-        run: npm run build
+        run:  nix develop -c npm run build
