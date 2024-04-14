@@ -17,6 +17,12 @@ jobs:
           node-version: 21
           cache: 'npm'
 
+      - name: Install
+        run:  npm install
+
+      - name: Build
+        run:  npm run build
+
       - name: Git Config
         run: |
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"

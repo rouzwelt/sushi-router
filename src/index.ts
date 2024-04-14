@@ -16,6 +16,6 @@ export * from './Sankey.AnyChart'
 export * from './TinesToRouteProcessor2'
 export * from './viem-config'
 export { memoizer } from './memoizer'
-// import { ChainId, ChainKey } from 'sushi/chain'
-// import { Token } from 'sushi/currency'
-// export { ChainId, ChainKey, Token }
+import { ChainId, ChainKey } from 'sushi/chain'
+import { Token } from 'sushi/currency'
+export { ChainId, ChainKey, Token }
