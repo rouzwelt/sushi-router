@@ -1,0 +1,20 @@
+name: Build CI
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install NodeJS v21
+        uses: actions/setup-node@v4
+        with:
+          node-version: 21
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build

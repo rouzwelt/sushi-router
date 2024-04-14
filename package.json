@@ -1,16 +1,14 @@
 {
-  "name": "sushiswap-router",
-  "version": "0.0.16",
+  "name": "sushi-router",
+  "version": "0.0.19",
   "description": "Sushi Router",
   "keywords": [
     "sushi",
     "routers"
   ],
-  "homepage": "https://www.sushi.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rouzwelt/sushi-router.git",
-    "directory": "packages/router"
+    "url": "https://github.com/rouzwelt/sushi-router.git"
   },
   "license": "UNLICENSED",
   "author": "Rouzwelt <rouzweltt@gmail.com>",
@@ -18,7 +16,8 @@
   "source": "src/index.ts",
   "typings": "dist/index.d.ts",
   "files": [
-    "/dist"
+    "/dist",
+    "/src"
   ],
   "scripts": {
     "prepublish": "npm run build",
