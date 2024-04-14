@@ -3,7 +3,7 @@ import { ChainId } from 'sushi/chain'
 import { Type } from 'sushi/currency'
 // import { PrismaClient } from '@sushiswap/database'
 import { isTridentChainId } from '@sushiswap/trident-sdk'
-import { config } from './viem-config'
+import { publicClientConfig } from './viem-config'
 import { createPublicClient, http, PublicClient } from 'viem'
 
 import { ApeSwapProvider } from './liquidity-providers/ApeSwap'
@@ -74,7 +74,7 @@ export class DataFetcher {
     // databaseClient?: PrismaClient,
   ) {
     this.chainId = chainId
-    if (!publicClient && !config[chainId]) {
+    if (!publicClient && !publicClientConfig[chainId]) {
       throw new Error(
         `No public client given and no viem config found for chainId ${chainId}`,
       )
@@ -84,10 +84,10 @@ export class DataFetcher {
       this.web3Client = publicClient
     } else {
       this.web3Client = createPublicClient({
-        ...config[chainId],
+        ...publicClientConfig[chainId],
         transport: isTest
           ? http('http://127.0.0.1:8545')
-          : config[chainId].transport,
+          : publicClientConfig[chainId].transport,
         pollingInterval: 8_000,
         batch: {
           multicall: {
