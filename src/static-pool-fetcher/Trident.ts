@@ -1,18 +1,18 @@
-import {
-  TRIDENT_CONSTANT_POOL_FACTORY_ADDRESS,
-  TRIDENT_STABLE_POOL_FACTORY_ADDRESS,
-  TridentChainId,
-} from '@sushiswap/trident-sdk'
+import { Address, PublicClient } from 'viem'
 import {
   tridentGetPoolsAbi,
   tridentPoolsCountAbi,
   tridentSwapFeeAbi,
 } from 'sushi/abi'
-import { ChainId } from 'sushi/chain'
+import { ChainId } from './../chain'
+import {
+  TRIDENT_CONSTANT_POOL_FACTORY_ADDRESS,
+  TRIDENT_STABLE_POOL_FACTORY_ADDRESS,
+  TridentChainId,
+} from './../config'
 import { Currency, Token } from 'sushi/currency'
-import { Address, PublicClient } from 'viem'
-import { memoizer } from '../memoizer'
 import { getCurrencyCombinations } from '../getCurrencyCombinations'
+import { memoizer } from '../memoizer'
 
 
 export interface TridentStaticPool {
@@ -32,8 +32,8 @@ export class TridentStaticPoolFetcher {
     options?: { blockNumber?: bigint, memoize?: boolean }
   ): Promise<[TridentStaticPool[], TridentStaticPool[]]> {
     const pools = await Promise.all([
-      this.getPools(client, chainId, t1, t2, 'CONSTANT_PRODUCT_POOL', options),
-      this.getPools(client, chainId, t1, t2, 'STABLE_POOL', options),
+      this.getPools(client, chainId, t1, t2, 'CONSTANT_PRODUCT_POOL'),
+      this.getPools(client, chainId, t1, t2, 'STABLE_POOL'),
     ])
 
     return pools
@@ -79,7 +79,15 @@ export class TridentStaticPoolFetcher {
               args: el as [Address, Address],
             }) as const,
         ),
-      }) as any
+      }) as ({
+            error?: undefined;
+            result: bigint;
+            status: "success";
+        } | {
+            error: Error;
+            result?: undefined;
+            status: "failure";
+        })[]
       : await client.multicall({
         multicallAddress: client.chain?.contracts?.multicall3?.address as Address,
         allowFailure: true,
@@ -108,8 +116,8 @@ export class TridentStaticPoolFetcher {
       .map(
         ([i, length]) =>
           [
-            _pairsUniqueAddr[i][0] as Address,
-            _pairsUniqueAddr[i][1] as Address,
+            _pairsUniqueAddr[i]![0] as Address,
+            _pairsUniqueAddr[i]![1] as Address,
             BigInt(0),
             BigInt(length),
           ] as const,
@@ -124,7 +132,7 @@ export class TridentStaticPoolFetcher {
           ],
       )
       .filter(([, length]) => length)
-      .map(([i]) => [_pairsUnique[i][0], _pairsUnique[i][1]])
+      .map(([i]) => [_pairsUnique[i]![0], _pairsUnique[i]![1]])
 
     const callStatePools = options?.memoize
       ? await multicallMemoize({
@@ -141,7 +149,15 @@ export class TridentStaticPoolFetcher {
               args,
             }) as const,
         ),
-      }) as any
+      }) as ({
+            error: Error;
+            result?: undefined;
+            status: "failure";
+        } | {
+            error?: undefined;
+            result: readonly `0x${string}`[];
+            status: "success";
+        })[]
       : await client.multicall({
         multicallAddress: client.chain?.contracts?.multicall3?.address as Address,
         allowFailure: true,
@@ -164,8 +180,8 @@ export class TridentStaticPoolFetcher {
         s.result.forEach((address) =>
           pools.push({
             address: address.toLowerCase() as Address,
-            token0: pairsUniqueProcessed?.[i][0] as Token,
-            token1: pairsUniqueProcessed?.[i][1] as Token,
+            token0: pairsUniqueProcessed?.[i]![0] as Token,
+            token1: pairsUniqueProcessed?.[i]![1] as Token,
             type,
           }),
         )
@@ -234,13 +250,3 @@ const pairsUnique = (
   })
   return Array.from(pairsMap.values())
 }
-
-const tokensUnique = (_pairsUnique: [Token, Token][]) =>
-  Array.from(
-    new Set(
-      _pairsUnique.reduce<Token[]>(
-        (previousValue, currentValue) => previousValue.concat(currentValue),
-        [],
-      ),
-    ),
-  )

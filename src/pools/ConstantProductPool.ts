@@ -2,8 +2,7 @@ import type {
   ConstantProductRPool,
   MultiRoute,
   RouteLeg,
-} from '@sushiswap/tines'
-
+} from '../../tines'
 import { HEXer } from '../HEXer'
 import { LiquidityProviders } from '../liquidity-providers'
 import { PoolCode } from './PoolCode'
@@ -37,7 +36,7 @@ export class ConstantProductPoolCode extends PoolCode {
     return code
   }
 
-  getSwapCodeForRouteProcessor2(
+  override getSwapCodeForRouteProcessor2(
     leg: RouteLeg,
     _route: MultiRoute,
     to: string,
@@ -52,7 +51,7 @@ export class ConstantProductPoolCode extends PoolCode {
     return code
   }
 
-  getSwapCodeForRouteProcessor4(
+  override getSwapCodeForRouteProcessor4(
     leg: RouteLeg,
     _route: MultiRoute,
     to: string,
