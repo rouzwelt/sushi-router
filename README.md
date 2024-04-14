@@ -9,14 +9,14 @@ This is standalone fork of sushiswap router lib v0.0.16 with option of block num
 
 insall:
 ```sh
-npm install 'rouzwelt/sushiswap-router',
+npm install 'rouzwelt/sushi-router',
 ```
 
 # Tutorial
 ```typescript
 import { Token } from "sushi/currency";
 import { fallback, http, createPublicClient } from "viem";
-import { DataFetcher, Router, LiquidityProviders, config } from "sushiswap-router";
+import { DataFetcher, Router, LiquidityProviders, config } from "sushi-router";
 
 const transport = fallback(
   [
