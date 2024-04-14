@@ -20,7 +20,7 @@
     "/src"
   ],
   "scripts": {
-    "prepublish": "npm run chainlist && npm run build",
+    "prepublish": "npm run files && npm run build",
     "build": "tsc",
     "typings": "tsc --emitDeclarationOnly",
     "pack": "esbuild ./src/index.ts --bundle --outfile=./dist/index.js --external:viem --external:memoize-fs --external:sushi --format=cjs --platform=node --target=es2021",
@@ -30,7 +30,9 @@
     "dev": "tsc -w",
     "lint": "eslint src",
     "lint-fix": "eslint src --fix",
-    "chainlist": "ts-node ./scripts/chainlist"
+    "files": "npm run chainlist && npm run tines",
+    "chainlist": "ts-node ./scripts/chainlist",
+    "tines": "ts-node ./scripts/tines"
   },
   "dependencies": {
     "@ethersproject/abi": "5.7.0",
