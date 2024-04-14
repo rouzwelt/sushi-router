@@ -1,12 +1,11 @@
 {
   "name": "sushi-router",
-  "version": "0.0.16",
+  "version": "0.0.19",
   "description": "Sushi Router",
   "keywords": [
     "sushi",
     "routers"
   ],
-  "homepage": "https://www.sushi.com",
   "repository": {
     "type": "git",
     "url": "https://github.com/rouzwelt/sushi-router.git"
