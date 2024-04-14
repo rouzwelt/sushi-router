@@ -5,3 +5,4 @@ node_modules
 mem-cache
 *.txt
 src/chain
+src/tines
