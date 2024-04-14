@@ -2,7 +2,7 @@ name: Build CI
 on: [push]
 
 jobs:
-  rainix:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
