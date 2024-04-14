@@ -8,8 +8,9 @@ import { LINK } from 'sushi/currency'
 import { renBTC } from 'sushi/currency'
 import { CurvePool, RToken } from '@sushiswap/tines'
 import {
+  AbiStateMutability,
   Address,
-  ContractFunctionConfig,
+  ContractFunctionParameters,
   getContract,
   parseAbi,
   PublicClient,
@@ -384,6 +385,8 @@ export class CurveProvider extends LiquidityProvider {
           })),
       )
       const newFoundPools = options?.memoize
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         ? await multicallMemoize({
           multicallAddress: this.client.chain?.contracts?.multicall3?.address as '0x${string}',
           allowFailure: true,
@@ -537,13 +540,14 @@ export class CurveProvider extends LiquidityProvider {
     const multicallMemoize = await memoizer.fn(this.client.multicall);
     const poolArray = Array.from(pools.entries())
     const poolsMulticall = <
-      T extends ContractFunctionConfig<
-        typeof curvePoolABI[keyof typeof curvePoolABI]
+      T extends ContractFunctionParameters<
+        (typeof curvePoolABI)[keyof typeof curvePoolABI]
       >['functionName'],
     >(
       functionName: T,
-      args?: ContractFunctionConfig<
-        typeof curvePoolABI[keyof typeof curvePoolABI],
+      args?: ContractFunctionParameters<
+        (typeof curvePoolABI)[keyof typeof curvePoolABI],
+        AbiStateMutability,
         T
       >['args'],
     ) => {
