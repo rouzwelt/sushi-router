@@ -18,6 +18,7 @@ import {
   // evmos,
   //  evmosTestnet,
   fantom,
+  flare as _flare,
   // fantomTestnet,
   // filecoin,
   // filecoinTestnet,
@@ -62,6 +63,7 @@ export {
   // evmos,
   //  evmosTestnet,
   fantom,
+  flare,
   // fantomTestnet,
   // filecoin,
   // filecoinTestnet,
@@ -113,6 +115,16 @@ export const metis = {
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11' as Address,
       blockCreated: 2338552,
+    },
+  },
+}
+
+const flare = {
+  ..._flare,
+  contracts: {
+    multicall3: {
+      address: "0xcA11bde05977b3631167028862bE2a173976CA11" as Address,
+      blockCreated: 3002461,
     },
   },
 }
@@ -718,5 +730,9 @@ export const viemConfig: Record<number, PublicClientConfig> = {
         rank: true,
       }
     ),
+  },
+  14: {
+    chain: flare,
+    transport: http(flare.rpcUrls.default.http[0]),
   },
 } as const

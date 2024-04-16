@@ -122,7 +122,7 @@ export class EnosysProvider extends LiquidityProvider {
 
     const reserves = options?.memoize 
       ? await multicallMemoize({
-        multicallAddress: "0xcA11bde05977b3631167028862bE2a173976CA11",
+        multicallAddress: this.client.chain?.contracts?.multicall3?.address as Address,
         allowFailure: true,
         blockNumber: options?.blockNumber,
         contracts: poolCodesToCreate.map(
@@ -137,7 +137,7 @@ export class EnosysProvider extends LiquidityProvider {
         }
       )
       : await this.client.multicall({
-        multicallAddress: "0xcA11bde05977b3631167028862bE2a173976CA11",
+        multicallAddress: this.client.chain?.contracts?.multicall3?.address as Address,
         allowFailure: true,
         blockNumber: options?.blockNumber,
         contracts: poolCodesToCreate.map(

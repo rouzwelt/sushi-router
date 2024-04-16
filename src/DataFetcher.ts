@@ -107,10 +107,9 @@ export class DataFetcher {
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    this.providers = []
-    // this.chainId === 14
-    //   ? []
-    //   : [new NativeWrapProvider(this.chainId, this.web3Client)];
+    this.providers = this.chainId === 14
+      ? []
+      : [new NativeWrapProvider(this.chainId, this.web3Client)];
 
     if (this._providerIsIncluded(LiquidityProviders.SushiSwapV2, providers)) {
       try {
