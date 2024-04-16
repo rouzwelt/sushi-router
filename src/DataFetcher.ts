@@ -29,11 +29,12 @@ import { UbeSwapProvider } from './liquidity-providers/UbeSwap'
 import { UniswapV2Provider } from './liquidity-providers/UniswapV2'
 import { UniswapV3Provider } from './liquidity-providers/UniswapV3'
 import type { PoolCode } from './pools/PoolCode'
-import { Enosys } from './liquidity-providers/Enosys'
+import { EnosysProvider } from './liquidity-providers/Enosys'
 import { Router } from './Router'
 import { Token } from '.'
 import { ethers } from 'ethers'
-import { Camelot } from './liquidity-providers/Camelot'
+import { CamelotProvider } from './liquidity-providers/Camelot'
+import { BlazeSwapProvider } from './liquidity-providers/BlazeSwap'
 
 // import { create } from 'viem'
 const isTest = process.env['NODE_ENV'] === 'test' || process.env['NEXT_PUBLIC_TEST'] === 'true'
@@ -331,7 +332,7 @@ export class DataFetcher {
 
     if (this._providerIsIncluded(LiquidityProviders.Enosys, providers)) {
       try {
-        const provider = new Enosys(this.chainId, this.web3Client)
+        const provider = new EnosysProvider(this.chainId, this.web3Client)
         this.providers.push(provider)
       } catch (e: unknown) {
         // console.warn(e.message)
@@ -340,9 +341,18 @@ export class DataFetcher {
 
     if (this._providerIsIncluded(LiquidityProviders.Camelot, providers)) {
       try {
-        const provider = new Camelot(this.chainId, this.web3Client, 
+        const provider = new CamelotProvider(this.chainId, this.web3Client, 
           // this.databaseClient
         )
+        this.providers.push(provider)
+      } catch (e: unknown) {
+        // console.warn(e.message)
+      }
+    }
+
+    if (this._providerIsIncluded(LiquidityProviders.BlazeSwap, providers)) {
+      try {
+        const provider = new BlazeSwapProvider(this.chainId, this.web3Client)
         this.providers.push(provider)
       } catch (e: unknown) {
         // console.warn(e.message)

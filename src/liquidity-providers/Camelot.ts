@@ -31,7 +31,7 @@ const getReservesAbi = parseAbi([
   "function getReserves() public view returns (uint112 _reserve0, uint112 _reserve1, uint16 _token0FeePercent, uint16 _token1FeePercent)"
 ])
 
-export class Camelot extends LiquidityProvider {
+export class CamelotProvider extends LiquidityProvider {
   getType(): LiquidityProviders {
     return LiquidityProviders.Camelot
   }

@@ -28,7 +28,7 @@ interface StaticPool {
   fee: number
 }
 
-export class Enosys extends LiquidityProvider {
+export class EnosysProvider extends LiquidityProvider {
   getType(): LiquidityProviders {
     return LiquidityProviders.Enosys
   }
